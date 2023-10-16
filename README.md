@@ -20,9 +20,13 @@ This repository contains artifacts for the paper "TERRAPIN: Breaking SSH Channel
 
 ## Getting Started (PoCs)
 
-To run a PoC, simply execute the corresponding python script as root. Root permissions are required to bind to port 22 (you may also change the port to bind to and remove the root check). There are no external dependencies, just make sure to run a recent version of Python 3 (Python 3.11.4 has been used during development).
+First of all, make sure that you are running a recent version of Python 3 (Python 3.11.4 has been used during development). Then, install the external dependencies by running:
 
-All PoCs are implemented as proxies at the TCP layer. This reduces the management overhead, as we don't have to deal with TCP sequence numbers and checksums. All PoCs can also be implemented at a lower layer and could use well-known techniques to obtain a man-in-the-middle position.
+```bash
+pip install -r pocs/requirements.txt
+```
+
+To run a PoC, simply execute the corresponding python script as root. Root permissions are required to bind to port 22 (you may also change the port to bind to and remove the root check). All PoCs are implemented as proxies at the TCP layer. This reduces the management overhead, as we don't have to deal with TCP sequence numbers and checksums. All PoCs can also be implemented at a lower layer and could use well-known techniques to obtain a man-in-the-middle position.
 
 **If running the server and PoC on the same machine, you will have to adjust the ports of either the PoC script or the SSH server as both bind to port 22 by default.**
 
@@ -33,7 +37,7 @@ Make sure you have a recent version of Python 3 installed (Python 3.11.4 has bee
 Install the required pip libraries by calling:
 
 ```bash
-pip install -r requirements.txt
+pip install -r scan/requirements.txt
 ```
 
 You now may use the tool. A CLI help for the entire tool as well as individual commands is available by calling:
@@ -67,3 +71,4 @@ python scan_util.py tidy-zgrab2 -i zgrab2.json -o zgrab2-clean.json
 The following third party libraries are used:
 
 - CLI interface: [Click](https://github.com/pallets/click/)
+- CLI progress bar: [tqdm](https://github.com/tqdm/tqdm)
