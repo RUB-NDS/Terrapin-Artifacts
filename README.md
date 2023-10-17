@@ -26,9 +26,7 @@ First of all, make sure that you are running a recent version of Python 3 (Pytho
 pip install -r pocs/requirements.txt
 ```
 
-To run a PoC, simply execute the corresponding python script as root. Root permissions are required to bind to port 22 (you may also change the port to bind to and remove the root check). All PoCs are implemented as proxies at the TCP layer. This reduces the management overhead, as we don't have to deal with TCP sequence numbers and checksums. All PoCs can also be implemented at a lower layer and could use well-known techniques to obtain a man-in-the-middle position.
-
-**If running the server and PoC on the same machine, you will have to adjust the ports of either the PoC script or the SSH server as both bind to port 22 by default.**
+To run a PoC, simply execute the corresponding python script. All PoCs are implemented as proxies at the TCP layer and bind to 127.0.0.1:2222 by default, connecting to the server on 127.0.0.1:22. This reduces the management overhead, as we don't have to deal with TCP sequence numbers and checksums. All PoCs can also be implemented at a lower layer and could use well-known techniques to obtain a man-in-the-middle position.
 
 ## Getting Started (scan_util.py)
 

