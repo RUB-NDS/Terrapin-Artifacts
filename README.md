@@ -1,6 +1,6 @@
-# Artifacts for TERRAPIN
+# Artifacts for Terrapin
 
-This repository contains artifacts for the paper "TERRAPIN: Breaking SSH Channel Integrity By Sequence Number Manipulation", currently under submission.
+This repository contains artifacts for the paper "Terrapin Attack: Breaking SSH Channel Integrity By Sequence Number Manipulation", currently under submission.
 
 ## Repository Structure
 
