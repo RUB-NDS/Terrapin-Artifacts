@@ -34,7 +34,8 @@ ARG PASSWORD
 RUN useradd --create-home --groups users "${USERNAME}" && \
     echo "${USERNAME}:${PASSWORD}" | chpasswd
 
-COPY files/ssh_host_*_key /install/etc/
+COPY files/ssh_host_rsa_key /install/etc/
+RUN chmod 600 /install/etc/ssh_host_rsa_key
 
 # Server image
 FROM openssh-base AS openssh-server
@@ -57,6 +58,8 @@ FROM openssh-base AS openssh-client
 
 ARG VERSION
 COPY --from=openssh-builder /install /install
+COPY files/known_hosts /root/.ssh/
+
 LABEL ssh.implementation.name="openssh" \
       ssh.implementation.version="${VERSION}" \
       ssh.implementation.type="client"

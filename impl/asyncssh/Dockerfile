@@ -20,7 +20,8 @@ ARG USERNAME
 ARG PASSWORD
 
 # Copy server script and RSA server key
-COPY files/simple_server.py files/ssh_host_key* ./
+COPY files/simple_server.py files/ssh_host_rsa_key ./
+RUN chmod 600 ssh_host_rsa_key
 
 LABEL ssh.implementation.name="asyncssh" \
       ssh.implementation.version="${VERSION}" \
@@ -36,6 +37,7 @@ FROM asyncssh-base AS asyncssh-client
 
 # Copy client script
 COPY files/simple_client.py ./
+COPY files/known_hosts /root/.ssh/
 
 LABEL ssh.implementation.name="asyncssh" \
       ssh.implementation.version="${VERSION}" \

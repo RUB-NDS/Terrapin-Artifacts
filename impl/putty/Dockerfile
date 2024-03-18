@@ -29,6 +29,8 @@ RUN cmake . && \
     cmake --build . && \
     cmake --build . --target install
 
+COPY files/sshhostkeys /root/.putty/
+
 LABEL "ssh.implementation.name"="putty" \
     "ssh.implementation.version"="${VERSION}" \
     "ssh.implementation.type"="client"

@@ -40,7 +40,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libssl-dev \
   zlib1g-dev \
   && rm -rf /var/lib/apt/lists/*
-COPY files/ssh_host_*_key /install/host_keys/
+COPY files/ssh_host_rsa_key /install/host_keys/
+RUN chmod 600 /install/etc/ssh_host_rsa_key
 COPY --from=libssh-builder /install /usr/
 COPY --from=libssh-builder /src/libssh/build/examples /install/examples/
 LABEL "ssh.implementation.name"="libssh" \
@@ -48,10 +49,7 @@ LABEL "ssh.implementation.name"="libssh" \
     "ssh.implementation.type"="server"
 ENTRYPOINT [ "/install/examples/ssh_server_fork" ]
 CMD [ "-p", "22", \
-  "-k", "/install/host_keys/ssh_host_dsa_key", \
-  "-k", "/install/host_keys/ssh_host_ecdsa_key", \
   "-k", "/install/host_keys/ssh_host_rsa_key", \
-  "-k", "/install/host_keys/ssh_host_ed25519_key", \
   "0.0.0.0" ]
 EXPOSE 22
 
@@ -64,9 +62,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 COPY --from=libssh-builder /install /usr/
 COPY --from=libssh-builder /src/libssh/build/examples /install/examples/
+COPY files/known_hosts /root/.ssh/
 
 ARG VERSION
 LABEL "ssh.implementation.name"="libssh" \
     "ssh.implementation.version"="${VERSION}" \
     "ssh.implementation.type"="client"
-ENTRYPOINT [ "/install/examples/ssh-client" ]
+ENTRYPOINT [ "/install/examples/ssh-client", "-r" ]

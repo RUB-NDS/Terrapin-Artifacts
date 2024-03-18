@@ -20,7 +20,8 @@ RUN ./configure && \
     make PROGRAMS="dropbear" -j "$(nproc)" && \
     make PROGRAMS="dropbear" install
 
-COPY files/dropbear_*_host_key /etc/dropbear/
+COPY files/dropbear_rsa_host_key /etc/dropbear/
+RUN chmod 600 /etc/dropbear/dropbear_rsa_host_key
 
 # Set up SSH user and configure a password
 RUN adduser -D "${USERNAME}" && \
@@ -40,6 +41,8 @@ FROM dropbear-builder AS dropbear-client
 RUN ./configure && \
     make PROGRAMS="dbclient" -j "$(nproc)" && \
     make PROGRAMS="dbclient" install
+
+COPY files/known_hosts /root/.ssh/
 
 ARG VERSION
 LABEL ssh.implementation.name="dropbear" \

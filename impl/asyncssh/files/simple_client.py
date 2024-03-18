@@ -37,7 +37,7 @@ def client_start(host, port, username, password, command, output, error):
 
 async def run_client(host, port, username, password, command, output, error):
     async with asyncssh.connect(
-        host=host, port=port, username=username, password=password, known_hosts=None
+        host=host, port=port, username=username, password=password
     ) as conn:
         result = await conn.run(command, check=True)
         print(result.stdout, end="")

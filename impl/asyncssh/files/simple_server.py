@@ -120,7 +120,7 @@ def validate_username(ctx, param, value):
 @click.option(
     "--host-key",
     help="SSH host key",
-    default=pathlib.Path(__file__).parent.joinpath("ssh_host_key"),
+    default=pathlib.Path(__file__).parent.joinpath("ssh_host_rsa_key"),
     type=pathlib.Path,
 )
 def main(username, password, authorized_keys_file, port, host_key):
