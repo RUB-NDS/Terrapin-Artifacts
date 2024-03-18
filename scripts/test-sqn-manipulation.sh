@@ -16,7 +16,20 @@ function ensure_images {
 }
 
 function print_info {
-  echo "TODO"
+  echo
+  echo "--- SSH sequence number manipulation techniques PoC ---"
+  echo
+  echo "[i] This script can be used to reproduce the evaluation results presented in section 4.1 of the paper"
+  echo "[i] The script will perform the following steps:"
+  echo -e "\t 1. Start $SERVER_IMPL_NAME server on port $SERVER_PORT"
+  echo -e "\t 2. Select and start PoC proxy on port $POC_PORT"
+  echo -e "\t 3. Select and start a SSH client to connect to the PoC proxy"
+  echo "[i] All container will run in --network host to allow for easy capturing via Wireshark on the lo interface"
+  echo "[i] Make sure that ports $SERVER_PORT and $POC_PORT on the host are available and can be used by the containers"
+  echo
+  echo "[i] Note that all PoCs available will result in the connection terminating due to sequence number mismatch"
+  echo "[i] This is expected and intended behaviour as these PoCs are designed to check wrap-around detection, timeouts, ..."
+  echo
 }
 
 function start_ssh_server {
