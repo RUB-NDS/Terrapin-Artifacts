@@ -44,7 +44,7 @@ function select_and_run_poc_proxy {
   echo "[i] This script supports the following extension downgrade attack variants as PoC:"
   echo -e "\t1) CBC-EtM (Unknown)"
   echo -e "\t2) CBC-EtM (Ping)"
-  read -p "[+] Please input PoC variant to test [1-2]: " POC_VARIANT
+  read -p "[+] Please select PoC variant to test [1-2]: " POC_VARIANT
 
   case $POC_VARIANT in
     1)

@@ -8,6 +8,7 @@ SERVER_PORT=2200
 POC_CONTAINER_NAME="terrapin-artifacts-poc"
 POC_PORT=2201
 
+CLIENT_IMPL_NAME="OpenSSH 9.5p1"
 CLIENT_IMAGE="terrapin-artifacts/openssh-client:9.5p1"
 CLIENT_CONTAINER_NAME="terrapin-artifacts-client"
 
@@ -24,8 +25,8 @@ function print_info {
   echo "[i] The script will perform the following steps:"
   echo -e "\t 1. Start $SERVER_IMPL_NAME server on port $SERVER_PORT"
   echo -e "\t 2. Select and start PoC proxy on port $POC_PORT"
-  echo -e "\t 3. Start an SSH client to connect to the server directly"
-  echo -e "\t 4. Start another SSH client to conect to the PoC proxy"
+  echo -e "\t 3. Start $CLIENT_IMPL_NAME client to connect to the server directly"
+  echo -e "\t 4. Start $CLIENT_IMPL_NAME client to conect to the PoC proxy"
   echo -e "\t 5. Compare log files for all connections using less"
   echo "[i] All container will run in --network host to allow for easy capturing via Wireshark on the lo interface"
   echo "[i] Make sure that ports $SERVER_PORT and $POC_PORT on the host are available and can be used by the containers"
@@ -56,7 +57,7 @@ function select_and_run_poc_proxy {
   echo -e "\t1) ChaCha20-Poly1305"
   echo -e "\t2) CBC-EtM (Unknown)"
   echo -e "\t3) CBC-EtM (Ping)"
-  read -p "[+] Please input PoC variant to test [1-3]: " POC_VARIANT
+  read -p "[+] Please select PoC variant to test [1-3]: " POC_VARIANT
 
   case $POC_VARIANT in
     1)

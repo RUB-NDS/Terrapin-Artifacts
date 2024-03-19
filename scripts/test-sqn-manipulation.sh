@@ -47,7 +47,7 @@ function select_and_run_poc_proxy {
   echo -e "\t2) RcvDecrease"
   echo -e "\t3) SndIncrease"
   echo -e "\t4) SndDecrease"
-  read -p "[+] Please input PoC variant to test [1-4]: " POC_VARIANT
+  read -p "[+] Please select PoC variant to test [1-4]: " POC_VARIANT
 
   case $POC_VARIANT in
     1)
@@ -68,7 +68,7 @@ function select_and_run_poc_proxy {
   esac
   echo "[+] Selected PoC variant: '$POC_VARIANT_NAME'"
 
-  read -p "[+] Please input a natural number N between 0 and 2^32 to increase or decrease the sequence number by: " DECREASE_INCREASE_BY
+  read -p "[+] Please choose a natural number N between 0 and 2^32 to increase or decrease the sequence number by: " DECREASE_INCREASE_BY
 
   docker run \
     --rm \
@@ -86,7 +86,7 @@ function select_and_run_client {
   echo -e "\t4) OpenSSH 9.4p1"
   echo -e "\t5) OpenSSH 9.5p1"
   echo -e "\t6) PuTTY 0.79"
-  read -p "[+] Please input client implementation to test [1-6]: " CLIENT_IMPL
+  read -p "[+] Please select client implementation to test [1-6]: " CLIENT_IMPL
 
   case $CLIENT_IMPL in
     1)
