@@ -9,7 +9,9 @@ SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 RUN apk add --no-cache bzip2 build-base zlib-dev
 
 ARG VERSION
-RUN wget -O - -q "https://matt.ucc.asn.au/dropbear/releases/dropbear-${VERSION}.tar.bz2" | bunzip2 | tar -xf -
+# RUN wget -O - -q "https://matt.ucc.asn.au/dropbear/releases/dropbear-${VERSION}.tar.bz2" | bunzip2 | tar -xf -
+COPY dropbear-${VERSION}.tar.bz2 /
+RUN cat "/dropbear-${VERSION}.tar.bz2" | bunzip2 | tar -xf -
 WORKDIR "/dropbear-${VERSION}"
 
 # Server image
