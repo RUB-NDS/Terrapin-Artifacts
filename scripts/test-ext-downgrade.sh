@@ -74,18 +74,32 @@ function select_client {
 
 function run_server_direct {
   echo "[+] Starting $SERVER_IMPL_NAME server on port $SERVER_PORT for direct connection"
-  docker run -d \
-    --network host \
-    --name "$SERVER_CONTAINER_NAME-direct" \
-    $SERVER_IMAGE -d -p $SERVER_PORT -o Ciphers=chacha20-poly1305@openssh.com,aes128-cbc -o MACs=hmac-sha2-256-etm@openssh.com > /dev/null 2>&1
+  if [[ $POC_VARIANT -eq 1 ]]; then
+    docker run -d \
+      --network host \
+      --name "$SERVER_CONTAINER_NAME-direct" \
+      $SERVER_IMAGE -d -p $SERVER_PORT -o Ciphers=chacha20-poly1305@openssh.com > /dev/null 2>&1
+  else
+    docker run -d \
+      --network host \
+      --name "$SERVER_CONTAINER_NAME-direct" \
+      $SERVER_IMAGE -d -p $SERVER_PORT -o Ciphers=aes128-cbc -o MACs=hmac-sha2-256-etm@openssh.com > /dev/null 2>&1
+  fi
 }
 
 function run_server_poc {
   echo "[+] Starting $SERVER_IMPL_NAME server on port $SERVER_PORT for PoC connection"
-  docker run -d \
-    --network host \
-    --name "$SERVER_CONTAINER_NAME-poc" \
-    $SERVER_IMAGE -d -p $SERVER_PORT -o Ciphers=chacha20-poly1305@openssh.com,aes128-cbc -o MACs=hmac-sha2-256-etm@openssh.com > /dev/null 2>&1
+  if [[ $POC_VARIANT -eq 1 ]]; then
+    docker run -d \
+      --network host \
+      --name "$SERVER_CONTAINER_NAME-poc" \
+      $SERVER_IMAGE -d -p $SERVER_PORT -o Ciphers=chacha20-poly1305@openssh.com > /dev/null 2>&1
+  else
+    docker run -d \
+      --network host \
+      --name "$SERVER_CONTAINER_NAME-poc" \
+      $SERVER_IMAGE -d -p $SERVER_PORT -o Ciphers=aes128-cbc -o MACs=hmac-sha2-256-etm@openssh.com > /dev/null 2>&1
+  fi
 }
 
 function select_and_run_poc_proxy {
@@ -124,31 +138,31 @@ function select_and_run_poc_proxy {
 
 function run_client_direct {
   echo "[+] Connecting with $CLIENT_IMPL_NAME client to $SERVER_IMPL_NAME server at 127.0.0.1:$SERVER_PORT as user victim"
-  if [[ $POC_VARIANT -eq 1 ]]; then
+  if [[ $CLIENT_IMPL -eq 1 ]]; then
     docker run \
       --network host \
       --name "$CLIENT_CONTAINER_NAME-direct" \
-      $CLIENT_IMAGE -vvv -p $SERVER_PORT victim@127.0.0.1 > /dev/null 2>&1
+      $CLIENT_IMAGE -vvv -o Ciphers=chacha20-poly1305@openssh.com,aes128-cbc -o MACs=hmac-sha2-256-etm@openssh.com -p $SERVER_PORT victim@127.0.0.1 > /dev/null 2>&1
   else
     docker run \
       --network host \
       --name "$CLIENT_CONTAINER_NAME-direct" \
-      $CLIENT_IMAGE -vvv -o Ciphers=aes128-cbc -o MACs=hmac-sha2-256-etm@openssh.com -p $SERVER_PORT victim@127.0.0.1 > /dev/null 2>&1
+      $CLIENT_IMAGE -v -P $SERVER_PORT -batch -sshlog /dev/stdout victim@127.0.0.1 > /dev/null 2>&1
   fi
 }
 
 function run_client_poc {
   echo "[+] Connecting with $CLIENT_IMPL_NAME client to PoC proxy at 127.0.0.1:$POC_PORT as user victim"
-  if [[ $POC_VARIANT -eq 1 ]]; then
+  if [[ $CLIENT_IMPL -eq 1 ]]; then
     docker run \
       --network host \
       --name "$CLIENT_CONTAINER_NAME-poc" \
-      $CLIENT_IMAGE -vvv -p $POC_PORT victim@127.0.0.1 > /dev/null 2>&1
+      $CLIENT_IMAGE -vvv -o Ciphers=chacha20-poly1305@openssh.com,aes128-cbc -o MACs=hmac-sha2-256-etm@openssh.com -p $POC_PORT victim@127.0.0.1 > /dev/null 2>&1
   else
     docker run \
       --network host \
       --name "$CLIENT_CONTAINER_NAME-poc" \
-      $CLIENT_IMAGE -vvv -o Ciphers=aes128-cbc -o MACs=hmac-sha2-256-etm@openssh.com -p $POC_PORT victim@127.0.0.1 > /dev/null 2>&1
+      $CLIENT_IMAGE -v -P $POC_PORT -batch -sshlog /dev/stdout victim@127.0.0.1 > /dev/null 2>&1    
   fi
 }
 
