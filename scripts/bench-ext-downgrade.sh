@@ -139,6 +139,7 @@ ensure_images
 print_info
 select_and_run_poc_proxy
 run_server
+sleep 5
 bench_client
 stop_containers
 remove_containers

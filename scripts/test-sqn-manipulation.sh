@@ -139,5 +139,6 @@ ensure_images
 print_info
 start_ssh_server
 select_and_run_poc_proxy
+sleep 5
 select_and_run_client
 cleanup

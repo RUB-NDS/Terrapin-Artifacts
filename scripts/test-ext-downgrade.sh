@@ -170,9 +170,11 @@ ensure_images
 print_info
 select_and_run_poc_proxy
 run_server_direct
+sleep 5
 run_client_direct
 stop_containers_direct_only
 run_server_poc
+sleep 5
 run_client_poc
 stop_containers
 capture_and_compare_outputs

