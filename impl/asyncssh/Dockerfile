@@ -11,7 +11,9 @@ COPY files/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 ARG VERSION
-RUN pip install --no-cache-dir asyncssh==$VERSION
+COPY source/asyncssh-${VERSION}-py3-none-any.whl /usr/src/app/
+RUN pip install --no-cache-dir asyncssh-${VERSION}-py3-none-any.whl && \
+      rm asyncssh-${VERSION}-py3-none-any.whl
 
 # Server image
 FROM asyncssh-base AS asyncssh-server
