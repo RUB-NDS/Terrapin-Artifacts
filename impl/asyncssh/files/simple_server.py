@@ -124,7 +124,6 @@ def validate_username(ctx, param, value):
     type=pathlib.Path,
 )
 def main(username, password, authorized_keys_file, port, host_key):
-    logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger(__name__)
 
     # Modification for AsyncSSH rogue session attack
@@ -160,4 +159,7 @@ def main(username, password, authorized_keys_file, port, host_key):
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+    asyncssh.set_log_level("DEBUG")
+    asyncssh.set_debug_level(2)
     sys.exit(main(auto_envvar_prefix="SSH"))

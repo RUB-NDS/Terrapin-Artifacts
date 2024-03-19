@@ -5,7 +5,7 @@ import click
 import asyncio
 import asyncssh
 import sys
-
+import logging
 
 @click.command()
 @click.option("-H", "--host", help="hostname or ip", default='127.0.0.1')
@@ -44,4 +44,7 @@ async def run_client(host, port, username, password, command, output, error):
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+    asyncssh.set_log_level("DEBUG")
+    asyncssh.set_debug_level(2)
     client_start()
