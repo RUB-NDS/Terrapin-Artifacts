@@ -27,7 +27,7 @@ function print_info {
   echo -e "\t 1. Start $SERVER_IMPL_NAME server on port $SERVER_PORT"
   echo -e "\t 2. Select and start PoC proxy on port $POC_PORT"
   echo -e "\t 3. Start $CLIENT_IMPL_NAME client to connect to the server directly"
-  echo -e "\t 4. Start $CLIENT_IMPL_NAME client to conect to the PoC proxy"
+  echo -e "\t 4. Start $CLIENT_IMPL_NAME client to connect to the PoC proxy"
   echo -e "\t 5. Compare log files for all connections using less"
   echo "[i] All container will run in --network host to allow for easy capturing via Wireshark on the lo interface"
   echo "[i] Make sure that ports $SERVER_PORT and $POC_PORT on the host are available and can be used by the containers"
