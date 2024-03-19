@@ -12,22 +12,22 @@ EXPOSE 22
 ## Sequence Number Manipulations (Section 4.1)            ##
 ############################################################
 FROM poc-base AS sqn-rcv-decrease
-ENTRYPOINT [ "python", "sqn-manipulations/rcv_decrease.py", "--proxy-ip", "0.0.0.0", "--proxy-port", "22" ]
+ENTRYPOINT [ "python", "sqn-manipulations/rcv_decrease.py" ]
 
 FROM poc-base AS sqn-rcv-increase
-ENTRYPOINT [ "python", "sqn-manipulations/rcv_increase.py", "--proxy-ip", "0.0.0.0", "--proxy-port", "22" ]
+ENTRYPOINT [ "python", "sqn-manipulations/rcv_increase.py" ]
 
 FROM poc-base AS sqn-snd-decrease
-ENTRYPOINT [ "python", "sqn-manipulations/snd_decrease.py", "--proxy-ip", "0.0.0.0", "--proxy-port", "22" ]
+ENTRYPOINT [ "python", "sqn-manipulations/snd_decrease.py" ]
 
 FROM poc-base AS sqn-snd-increase
-ENTRYPOINT [ "python", "sqn-manipulations/snd_increase.py", "--proxy-ip", "0.0.0.0", "--proxy-port", "22" ]
+ENTRYPOINT [ "python", "sqn-manipulations/snd_increase.py" ]
 
 ############################################################
 ## Extension Downgrade (Section 5.2 / Figure 5)           ##
 ############################################################
 FROM poc-base AS ext-downgrade-chacha20-poly1305
-ENTRYPOINT ["python", "ext-downgrade/ext_downgrade_chacha20_poly1305.py"]
+ENTRYPOINT ["python", "ext-downgrade/ext_downgrade_chacha20_poly1305.py" ]
 
 FROM poc-base AS ext-downgrade-cbc-unknown
 ENTRYPOINT [ "python", "ext-downgrade/ext_downgrade_cbc_unknown.py" ]
