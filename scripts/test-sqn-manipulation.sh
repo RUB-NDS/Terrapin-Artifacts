@@ -23,7 +23,7 @@ function print_info {
   echo "[i] The script will perform the following steps:"
   echo -e "\t 1. Start $SERVER_IMPL_NAME server on port $SERVER_PORT"
   echo -e "\t 2. Select and start PoC proxy on port $POC_PORT"
-  echo -e "\t 3. Select and start a SSH client to connect to the PoC proxy"
+  echo -e "\t 3. Select and start an SSH client to connect to the PoC proxy"
   echo "[i] All container will run in --network host to allow for easy capturing via Wireshark on the lo interface"
   echo "[i] Make sure that ports $SERVER_PORT and $POC_PORT on the host are available and can be used by the containers"
   echo
@@ -42,7 +42,7 @@ function start_ssh_server {
 }
 
 function select_and_run_poc_proxy {
-  echo "[+] This script supports the following sequence number manipulations as PoC:"
+  echo "[i] This script supports the following sequence number manipulations as PoC:"
   echo -e "\t1) RcvIncrease"
   echo -e "\t2) RcvDecrease"
   echo -e "\t3) SndIncrease"
@@ -79,7 +79,7 @@ function select_and_run_poc_proxy {
 }
 
 function select_and_run_client {
-  echo "[+] This script supports the following SSH client implementations:"
+  echo "[i] This script supports the following SSH client implementations:"
   echo -e "\t1) AsyncSSH 2.13.2"
   echo -e "\t2) Dropbear 2022.83"
   echo -e "\t3) libssh 0.10.5"
