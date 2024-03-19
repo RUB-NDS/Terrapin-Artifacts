@@ -84,13 +84,13 @@ function capture_and_compare_outputs {
   diff "$CLIENT_CONTAINER_NAME-direct.txt" "$CLIENT_CONTAINER_NAME-poc.txt" > "$CLIENT_CONTAINER_NAME.txt.diff"
 
   less \
-    "$SERVER_CONTAINER_NAME-direct.txt" \
-    "$CLIENT_CONTAINER_NAME-direct.txt" \
-    "$SERVER_CONTAINER_NAME-poc.txt" \
-    "$POC_CONTAINER_NAME.txt" \
-    "$CLIENT_CONTAINER_NAME-poc.txt" \
     "$SERVER_CONTAINER_NAME.txt.diff" \
-    "$CLIENT_CONTAINER_NAME.txt.diff"
+    "$CLIENT_CONTAINER_NAME.txt.diff" \
+    "$SERVER_CONTAINER_NAME-direct.txt" \
+    "$SERVER_CONTAINER_NAME-poc.txt" \
+    "$CLIENT_CONTAINER_NAME-direct.txt" \
+    "$CLIENT_CONTAINER_NAME-poc.txt" \
+    "$POC_CONTAINER_NAME.txt"
 
   rm \
     "$SERVER_CONTAINER_NAME-direct.txt" \
