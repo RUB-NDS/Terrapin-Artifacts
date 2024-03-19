@@ -15,8 +15,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 ARG VERSION
+#RUN mkdir /src && \
+#    curl -s "https://gitlab.com/libssh/libssh-mirror/-/archive/libssh-${VERSION}/libssh-mirror-libssh-${VERSION}.tar.gz" | tar xzf - && \
+#    mv "libssh-mirror-libssh-${VERSION}" /src/libssh
+COPY "libssh-mirror-libssh-${VERSION}.tar.gz" /
 RUN mkdir /src && \
-    curl -s "https://gitlab.com/libssh/libssh-mirror/-/archive/libssh-${VERSION}/libssh-mirror-libssh-${VERSION}.tar.gz" | tar xzf - && \
+    cat "/libssh-mirror-libssh-${VERSION}.tar.gz" | tar xzf - && \
     mv "libssh-mirror-libssh-${VERSION}" /src/libssh
 WORKDIR /src/libssh
 
