@@ -14,7 +14,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 ARG VERSION
-RUN mkdir /src && curl -s https://cloudflare.cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-${VERSION}.tar.gz | tar xzf - -C /src
+WORKDIR /src
+COPY source/openssh-${VERSION}.tar.gz /tmp/
+RUN tar -xzf /tmp/openssh-${VERSION}.tar.gz -C /src && rm /tmp/openssh-${VERSION}.tar.gz
 
 WORKDIR "/src/openssh-${VERSION}"
 RUN ./configure --prefix /install && \
