@@ -191,8 +191,12 @@ def create_empty_ssh_eval_result():
           'none': 0,
           'other': 0
         },
-        'vulnerable_to_terrapin_supported': 0,
-        'vulnerable_to_terrapin_preferred': 0
+        'terrapin': {
+          'vulnerable_supported': 0,
+          'vulnerable_preferred': 0,
+          'exploitable_supported': 0,
+          'exploitable_preferred': 0
+        }
       },
       #* This dict tracks supported user authentication methods.
       'userauth': {},
@@ -212,8 +216,14 @@ def evaluate_ssh(input_file, output, anonymize):
   eval_result = create_empty_ssh_eval_result()
   with open(input_file, mode='r', encoding='utf-8') as input:
     with progressbar(length = stat(input_file).st_size, label='Evaluating zgrab2 results') as bar:
+      line_cnt = 0
       for line in input:
-        scan_result = json.loads(line)
+        try:
+          line_cnt += 1
+          scan_result = json.loads(line)
+        except json.JSONDecodeError:
+          echo_via_pager(f'Caught a JSONDecodeError while reading the input file, line {line_cnt} will be skipped.')
+          continue
         eval_result['total_host_count'] += 1
         # Update scanStart and / or scanEnd
         scan_result['data']['ssh']['timestamp'] = datetime.fromisoformat(scan_result['data']['ssh']['timestamp'])
@@ -284,11 +294,21 @@ def evaluate_ssh(input_file, output, anonymize):
                 increment(eval_result['ssh']['kex']['supported_modes'], bpp_mode)
             if not any_mode_preferred:
               increment(eval_result['ssh']['kex']['preferred_modes'], 'unknown')
-            if check_bpp_mode(server_kex, 'chacha20_poly1305', True) or check_bpp_mode(server_kex, 'cbc_eam', True):
-              eval_result['ssh']['kex']['vulnerable_to_terrapin_preferred'] += 1
-              eval_result['ssh']['kex']['vulnerable_to_terrapin_supported'] += 1
-            elif check_bpp_mode(server_kex, 'chacha20_poly1305') or check_bpp_mode(server_kex, 'cbc_eam'):
-              eval_result['ssh']['kex']['vulnerable_to_terrapin_supported'] += 1
+            # Terrapin vulnerability (CVE-2023-48795)
+            if 'kex_algorithms' in server_kex and 'kex-strict-s-v00@openssh.com' not in server_kex['kex_algorithms']:
+              if check_bpp_mode(server_kex, 'chacha20_poly1305', True) or check_bpp_mode(server_kex, 'cbc_etm', True):
+                eval_result['ssh']['kex']['terrapin']['exploitable_supported'] += 1
+                eval_result['ssh']['kex']['terrapin']['exploitable_preferred'] += 1
+                eval_result['ssh']['kex']['terrapin']['vulnerable_supported'] += 1
+                eval_result['ssh']['kex']['terrapin']['vulnerable_preferred'] += 1
+              elif check_bpp_mode(server_kex, 'chacha20_poly1305') or check_bpp_mode(server_kex, 'cbc_etm'):
+                eval_result['ssh']['kex']['terrapin']['exploitable_supported'] += 1
+                eval_result['ssh']['kex']['terrapin']['vulnerable_supported'] += 1
+              elif check_bpp_mode(server_kex, 'ctr_etm', True) or check_bpp_mode(server_kex, 'stream_etm', True):
+                eval_result['ssh']['kex']['terrapin']['vulnerable_supported'] += 1
+                eval_result['ssh']['kex']['terrapin']['vulnerable_preferred'] += 1
+              elif check_bpp_mode(server_kex, 'ctr_etm') or check_bpp_mode(server_kex, 'stream_etm'):
+                eval_result['ssh']['kex']['terrapin']['vulnerable_supported'] += 1
             # Cipher families
             evaluate_cipher_families(eval_result['ssh']['kex'], server_kex)
           else:
