@@ -19,11 +19,11 @@ This repository contains artifacts for the paper "Terrapin Attack: Breaking SSH 
     │   ├── Dockerfile               # Multistage Dockerfile to build PoC docker images
     │   └── build.sh                 # Script to build all required PoC Docker images for reproducing our results
     ├── scan                         # Files related to the internet-wide scan conducted
-    │   ├── 20231010_zgrab2_22_clean.acc.json 
-    │   │                            # Aggregated results file produced by the scan_util.py script (anonymized)
+    │   ├── paper                    # Directory containing the aggregated scan data referenced in the final version of the paper
+    │   ├── sample	                 # Directory containing an anonymized zgrab2 ssh results sample to use with scan_util.py
     │   ├── scan_util.py             # Utility script for aggregating zgrab2 ssh results
     │   ├── requirements.txt         # pip requirements file for scan_util.py
-    │   └── Dockerfile               # Dockerfile for scan_util.py
+    │   └── Dockerfile               # Dockerfile to build a docker image running scan_util.py
     ├── scripts                      # Scripts for easier reproduction of our results presented in the paper
     │   ├── bench-ext-downgrade.sh   # Benchmark script to evaluate the success rate of the CBC-EtM variant of the extension downgrade attack
     │   ├── cleanup-system.sh        # A cleanup script which can be used to containers and images related to these artifacts

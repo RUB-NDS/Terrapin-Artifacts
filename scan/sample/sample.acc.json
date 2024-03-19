@@ -1,0 +1,352 @@
+{
+  "scan_start": "2023-10-10T11:03:00+00:00",
+  "scan_end": "2023-10-10T11:03:00+00:00",
+  "eval_start": "2024-03-19T22:38:33.917870",
+  "eval_end": "2024-03-19T22:38:33.934880",
+  "anonymized": false,
+  "total_host_count": 100,
+  "ssh": {
+    "status": {
+      "success": 99,
+      "unknown-error": 1
+    },
+    "versions": {
+      "2.0": 100
+    },
+    "kex": {
+      "supported": {
+        "kex_algorithms": {
+          "diffie-hellman-group-exchange-sha256": 98,
+          "curve25519-sha256@libssh.org": 96,
+          "ecdh-sha2-nistp256": 95,
+          "ecdh-sha2-nistp384": 95,
+          "ecdh-sha2-nistp521": 95,
+          "curve25519-sha256": 91,
+          "diffie-hellman-group16-sha512": 90,
+          "diffie-hellman-group18-sha512": 90,
+          "diffie-hellman-group14-sha256": 88,
+          "diffie-hellman-group14-sha1": 41,
+          "diffie-hellman-group-exchange-sha1": 21,
+          "sntrup761x25519-sha512@openssh.com": 20,
+          "diffie-hellman-group1-sha1": 19
+        },
+        "host_key_algorithms": {
+          "ssh-ed25519": 94,
+          "rsa-sha2-512": 93,
+          "rsa-sha2-256": 93,
+          "ecdsa-sha2-nistp256": 90,
+          "ssh-rsa": 79,
+          "ssh-dss": 4,
+          "ssh-rsa-cert-v01@openssh.com": 2,
+          "ssh-dss-cert-v01@openssh.com": 2
+        },
+        "client_to_server_ciphers": {
+          "aes256-ctr": 99,
+          "aes128-ctr": 97,
+          "chacha20-poly1305@openssh.com": 95,
+          "aes192-ctr": 94,
+          "aes256-gcm@openssh.com": 94,
+          "aes128-gcm@openssh.com": 92,
+          "aes128-cbc": 21,
+          "aes256-cbc": 21,
+          "aes192-cbc": 18,
+          "3des-cbc": 17,
+          "blowfish-cbc": 16,
+          "cast128-cbc": 16,
+          "arcfour256": 2,
+          "arcfour128": 2,
+          "arcfour": 2,
+          "rijndael-cbc@lysator.liu.se": 2
+        },
+        "server_to_client_ciphers": {
+          "aes256-ctr": 99,
+          "aes128-ctr": 97,
+          "chacha20-poly1305@openssh.com": 95,
+          "aes192-ctr": 94,
+          "aes256-gcm@openssh.com": 94,
+          "aes128-gcm@openssh.com": 92,
+          "aes128-cbc": 21,
+          "aes256-cbc": 21,
+          "aes192-cbc": 18,
+          "3des-cbc": 17,
+          "blowfish-cbc": 16,
+          "cast128-cbc": 16,
+          "arcfour256": 2,
+          "arcfour128": 2,
+          "arcfour": 2,
+          "rijndael-cbc@lysator.liu.se": 2
+        },
+        "client_to_server_macs": {
+          "hmac-sha2-256": 98,
+          "hmac-sha2-512": 97,
+          "hmac-sha1": 97,
+          "umac-128-etm@openssh.com": 95,
+          "hmac-sha2-256-etm@openssh.com": 95,
+          "hmac-sha2-512-etm@openssh.com": 95,
+          "umac-128@openssh.com": 95,
+          "hmac-sha1-etm@openssh.com": 93,
+          "umac-64@openssh.com": 92,
+          "umac-64-etm@openssh.com": 90,
+          "hmac-sha1-96": 4,
+          "hmac-ripemd160": 4,
+          "hmac-md5": 3,
+          "hmac-md5-96": 3,
+          "hmac-ripemd160@openssh.com": 3,
+          "hmac-ripemd160-etm@openssh.com": 1
+        },
+        "server_to_client_macs": {
+          "hmac-sha2-256": 98,
+          "hmac-sha2-512": 97,
+          "hmac-sha1": 97,
+          "umac-128-etm@openssh.com": 95,
+          "hmac-sha2-256-etm@openssh.com": 95,
+          "hmac-sha2-512-etm@openssh.com": 95,
+          "umac-128@openssh.com": 95,
+          "hmac-sha1-etm@openssh.com": 93,
+          "umac-64@openssh.com": 92,
+          "umac-64-etm@openssh.com": 90,
+          "hmac-sha1-96": 4,
+          "hmac-ripemd160": 4,
+          "hmac-md5": 3,
+          "hmac-md5-96": 3,
+          "hmac-ripemd160@openssh.com": 3,
+          "hmac-ripemd160-etm@openssh.com": 1
+        },
+        "client_to_server_compression": {
+          "none": 100,
+          "zlib@openssh.com": 98
+        },
+        "server_to_client_compression": {
+          "none": 100,
+          "zlib@openssh.com": 98
+        }
+      },
+      "supported_modes": {
+        "chacha20_poly1305": 95,
+        "ctr_etm": 95,
+        "gcm": 94,
+        "cbc_etm": 17,
+        "ctr_eam": 4,
+        "cbc_eam": 4,
+        "stream_eam": 2,
+        "stream_etm": 0
+      },
+      "supported_cipher_families": {
+        "aes-ctr": 99,
+        "chacha20-poly1305": 95,
+        "aes-gcm": 94,
+        "aes-cbc": 21,
+        "3des-cbc": 17,
+        "blowfish-cbc": 16,
+        "cast128-cbc": 16,
+        "rc4": 2,
+        "3des-ctr": 0,
+        "twofish-ctr": 0,
+        "twofish-cbc": 0,
+        "blowfish-ctr": 0,
+        "cast128-ctr": 0,
+        "des-cbc": 0,
+        "idea-ctr": 0,
+        "idea-cbc": 0,
+        "serpent-ctr": 0,
+        "none": 0
+      },
+      "preferred": {
+        "kex_algorithms": {
+          "curve25519-sha256": 87,
+          "curve25519-sha256@libssh.org": 5,
+          "sntrup761x25519-sha512@openssh.com": 4,
+          "diffie-hellman-group-exchange-sha256": 2,
+          "diffie-hellman-group1-sha1": 1,
+          "diffie-hellman-group14-sha1": 1
+        },
+        "host_key_algorithms": {
+          "rsa-sha2-512": 65,
+          "ssh-rsa": 33,
+          "ecdsa-sha2-nistp256": 2
+        },
+        "client_to_server_ciphers": {
+          "chacha20-poly1305@openssh.com": 83,
+          "aes128-ctr": 7,
+          "aes256-gcm@openssh.com": 5,
+          "aes128-gcm@openssh.com": 3,
+          "aes128-cbc": 2
+        },
+        "server_to_client_ciphers": {
+          "chacha20-poly1305@openssh.com": 83,
+          "aes128-ctr": 7,
+          "aes256-gcm@openssh.com": 5,
+          "aes128-gcm@openssh.com": 3,
+          "aes128-cbc": 2
+        },
+        "client_to_server_macs": {
+          "umac-64-etm@openssh.com": 90,
+          "hmac-sha2-256-etm@openssh.com": 5,
+          "hmac-sha1": 2,
+          "hmac-md5": 2,
+          "hmac-sha2-256": 1
+        },
+        "server_to_client_macs": {
+          "umac-64-etm@openssh.com": 90,
+          "hmac-sha2-256-etm@openssh.com": 5,
+          "hmac-sha1": 2,
+          "hmac-md5": 2,
+          "hmac-sha2-256": 1
+        },
+        "client_to_server_compression": {
+          "none": 100
+        },
+        "server_to_client_compression": {
+          "none": 100
+        }
+      },
+      "preferred_modes": {
+        "chacha20_poly1305": 83,
+        "gcm": 8,
+        "ctr_etm": 4,
+        "ctr_eam": 3,
+        "cbc_eam": 2,
+        "cbc_etm": 0,
+        "stream_etm": 0,
+        "stream_eam": 0,
+        "unknown": 0
+      },
+      "preferred_cipher_families": {
+        "chacha20-poly1305": 83,
+        "aes-gcm": 8,
+        "aes-ctr": 7,
+        "aes-cbc": 2,
+        "3des-cbc": 0,
+        "3des-ctr": 0,
+        "twofish-ctr": 0,
+        "twofish-cbc": 0,
+        "blowfish-ctr": 0,
+        "blowfish-cbc": 0,
+        "cast128-ctr": 0,
+        "cast128-cbc": 0,
+        "rc4": 0,
+        "des-cbc": 0,
+        "idea-ctr": 0,
+        "idea-cbc": 0,
+        "serpent-ctr": 0,
+        "none": 0,
+        "other": 0
+      },
+      "terrapin": {
+        "vulnerable_supported": 95,
+        "vulnerable_preferred": 83,
+        "exploitable_supported": 95,
+        "exploitable_preferred": 83
+      }
+    },
+    "userauth": {},
+    "software": {
+      "banners": {
+        "OpenSSH_8.2p1": {
+          "count": 22,
+          "comment_strings": {
+            "Ubuntu-4ubuntu0.9": 16,
+            "Ubuntu-4ubuntu0.5": 3,
+            "Ubuntu-4ubuntu0.1": 1,
+            "Ubuntu-4ubuntu0.2": 1,
+            "Ubuntu-4ubuntu0.7": 1
+          }
+        },
+        "OpenSSH_8.9p1": {
+          "count": 16,
+          "comment_strings": {
+            "Ubuntu-3ubuntu0.3": 12,
+            "Ubuntu-3ubuntu0.4": 3
+          }
+        },
+        "OpenSSH_7.4": {
+          "count": 16,
+          "comment_strings": {}
+        },
+        "OpenSSH_8.4p1": {
+          "count": 12,
+          "comment_strings": {
+            "Debian-5+deb11u2": 9,
+            "Debian-5": 1,
+            "Debian-5+deb11u1": 1
+          }
+        },
+        "OpenSSH_7.9p1": {
+          "count": 6,
+          "comment_strings": {
+            "Debian-10+deb10u3": 4,
+            "Debian-10+deb10u2": 2
+          }
+        },
+        "OpenSSH_7.6p1": {
+          "count": 5,
+          "comment_strings": {
+            "Ubuntu-4ubuntu0.7": 3,
+            "Ubuntu-4ubuntu0.3": 1,
+            "Ubuntu-4ubuntu0.5": 1
+          }
+        },
+        "OpenSSH_8.0": {
+          "count": 3,
+          "comment_strings": {}
+        },
+        "OpenSSH_7.4p1": {
+          "count": 3,
+          "comment_strings": {
+            "Debian-10+deb9u7": 3
+          }
+        },
+        "OpenSSH_9.2p1": {
+          "count": 2,
+          "comment_strings": {
+            "Debian-2": 1,
+            "Debian-2+deb12u1": 1
+          }
+        },
+        "OpenSSH_6.7p1": {
+          "count": 2,
+          "comment_strings": {
+            "Debian-5+deb8u8": 2
+          }
+        },
+        "Cisco-1.25": {
+          "count": 2,
+          "comment_strings": {}
+        },
+        "OpenSSH_8.8": {
+          "count": 2,
+          "comment_strings": {}
+        },
+        "OpenSSH_7.2p2": {
+          "count": 2,
+          "comment_strings": {
+            "Ubuntu-4ubuntu2.10": 1,
+            "Ubuntu-4ubuntu2.8": 1
+          }
+        },
+        "OpenSSH_8.5": {
+          "count": 2,
+          "comment_strings": {}
+        },
+        "OpenSSH_5.3": {
+          "count": 2,
+          "comment_strings": {}
+        },
+        "OpenSSH_9.0p1": {
+          "count": 1,
+          "comment_strings": {
+            "Debian-1+b1": 1
+          }
+        },
+        "OpenSSH_9.3": {
+          "count": 1,
+          "comment_strings": {}
+        },
+        "rOu5kD65UC9Hu3": {
+          "count": 1,
+          "comment_strings": {}
+        }
+      }
+    }
+  }
+}
