@@ -15,4 +15,4 @@ function remove_artifact_images {
 }
 
 stop_and_delete_containers
-remove_artifact_images
+[[ $1 == "--full" ]] && remove_artifact_images
