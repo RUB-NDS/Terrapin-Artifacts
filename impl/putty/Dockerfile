@@ -19,11 +19,9 @@ RUN apt-get update && \
 
 WORKDIR /usr/bin/putty
 ARG VERSION
-# Use ADD as a workaround here, curl -q seems to be VERY slow for whatever reason on this one
-ADD https://the.earth.li/~sgtatham/putty/${VERSION}/putty-${VERSION}.tar.gz putty-${VERSION}.tar.gz
+COPY source/putty-${VERSION}.tar.gz /usr/bin/putty/
 RUN tar xzf putty-${VERSION}.tar.gz --strip-components=1 -C . \
     && rm -rf putty-0.79.tar.gz
-# RUN curl -s https://the.earth.li/~sgtatham/putty/${VERSION}/putty-${VERSION}.tar.gz | tar xzf - --strip-components=1 -C .
 
 RUN cmake . && \
     cmake --build . && \
