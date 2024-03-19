@@ -1,15 +1,11 @@
 #!/bin/bash
 
-SERVER_IMPL_NAME="OpenSSH 9.5p1"
-SERVER_IMAGE="terrapin-artifacts/openssh-server:9.5p1"
 SERVER_CONTAINER_NAME="terrapin-artifacts-server"
 SERVER_PORT=2200
 
 POC_CONTAINER_NAME="terrapin-artifacts-poc"
 POC_PORT=2201
 
-CLIENT_IMPL_NAME="OpenSSH 9.5p1"
-CLIENT_IMAGE="terrapin-artifacts/openssh-client:9.5p1"
 CLIENT_CONTAINER_NAME="terrapin-artifacts-client"
 
 function ensure_images {
@@ -23,17 +19,57 @@ function print_info {
   echo
   echo "[i] This script can be used to reproduce the evaluation results presented in section 5.2 of the paper"
   echo "[i] The script will perform the following steps:"
-  echo -e "\t 1. Start $SERVER_IMPL_NAME server on port $SERVER_PORT"
-  echo -e "\t 2. Select and start PoC proxy on port $POC_PORT"
-  echo -e "\t 3. Start $CLIENT_IMPL_NAME client to connect to the server directly"
-  echo -e "\t 4. Start $CLIENT_IMPL_NAME client to conect to the PoC proxy"
-  echo -e "\t 5. Compare log files for all connections using less"
+  echo -e "\t 1. Ask user to select server and client implementation to test"
+  echo -e "\t 2. Ask user which attack variant should be executed"
+  echo -e "\t 3. Start server on port $SERVER_PORT"
+  echo -e "\t 4. Start PoC proxy on port $POC_PORT"
+  echo -e "\t 5. Start $CLIENT_IMPL_NAME client to connect to the server directly"
+  echo -e "\t 6. Start $CLIENT_IMPL_NAME client to conect to the PoC proxy"
+  echo -e "\t 7. Compare log files for all connections using less"
   echo "[i] All container will run in --network host to allow for easy capturing via Wireshark on the lo interface"
   echo "[i] Make sure that ports $SERVER_PORT and $POC_PORT on the host are available and can be used by the containers"
   echo
   echo "[i] Note that CBC-EtM PoCs can indicate connection failure due to invalid messages"
   echo "[i] This is expected and intended behaviour as these PoCs are probabilistic and may require several attempts to work"
   echo
+}
+
+function select_server {
+  echo "[i] This script supports the following SSH servers:"
+  echo -e "\t1) OpenSSH 9.5p1"
+  echo -e "\t2) OpenSSH 9.4p1 (CBC-EtM Ping unsupported)"
+  read -p "[+] Please select SSH server to connect to [1-2]: " SERVER_IMPL
+
+  case $SERVER_IMPL in
+    1)
+      SERVER_IMPL_NAME="OpenSSH 9.5p1"
+      SERVER_IMAGE="terrapin-artifacts/openssh-server:9.5p1" ;;
+    2)
+      SERVER_IMPL_NAME="OpenSSH 9.4p1"
+      SERVER_IMAGE="terrapin-artifacts/openssh-server:9.4p1" ;;
+    *)
+      echo "[!] Invalid selection, please re-run the script"
+      exit 1 ;;
+  esac
+}
+
+function select_client {
+  echo "[i] This script supports the following SSH clients:"
+  echo -e "\t1) OpenSSH 9.5p1"
+  echo -e "\t2) PuTTY 0.79"
+  read -p "[+] Please select SSH client as attack target [1-2]: " CLIENT_IMPL
+
+  case $CLIENT_IMPL in
+    1)
+      CLIENT_IMPL_NAME="OpenSSH 9.5p1"
+      CLIENT_IMAGE="terrapin-artifacts/openssh-client:9.5p1" ;;
+    2)
+      CLIENT_IMPL_NAME="PuTTY 0.79"
+      CLIENT_IMAGE="terrapin-artifacts/putty-client:0.79" ;;
+    *)
+      echo "[!] Invalid selection, please re-run the script"
+      exit 1 ;;
+  esac
 }
 
 function run_server_direct {
@@ -67,6 +103,10 @@ function select_and_run_poc_proxy {
       POC_VARIANT_NAME="CBC-EtM (Unknown)"
       POC_IMAGE="terrapin-artifacts/ext-downgrade-cbc-unknown" ;;
     3)
+      if [[ $SERVER_IMPL -eq 2 ]]; then
+        echo "[!] CBC-EtM (Ping) variant requires OpenSSH 9.5p1 as the server. Please re-run the script."
+        exit 1
+      fi
       POC_VARIANT_NAME="CBC-EtM (Ping)"
       POC_IMAGE="terrapin-artifacts/ext-downgrade-cbc-ping" ;;
     *)
@@ -83,7 +123,7 @@ function select_and_run_poc_proxy {
 }
 
 function run_client_direct {
-  echo "[+] Connecting with OpenSSH 9.5p1 client to OpenSSH 9.5p1 server at 127.0.0.1:$SERVER_PORT as user victim"
+  echo "[+] Connecting with $CLIENT_IMPL_NAME client to $SERVER_IMPL_NAME server at 127.0.0.1:$SERVER_PORT as user victim"
   if [[ $POC_VARIANT -eq 1 ]]; then
     docker run \
       --network host \
@@ -98,7 +138,7 @@ function run_client_direct {
 }
 
 function run_client_poc {
-  echo "[+] Connecting with OpenSSH 9.5p1 client to PoC proxy at 127.0.0.1:$POC_PORT as user victim"
+  echo "[+] Connecting with $CLIENT_IMPL_NAME client to PoC proxy at 127.0.0.1:$POC_PORT as user victim"
   if [[ $POC_VARIANT -eq 1 ]]; then
     docker run \
       --network host \
@@ -169,6 +209,8 @@ function remove_containers {
 
 ensure_images
 print_info
+select_server
+select_client
 select_and_run_poc_proxy
 run_server_direct
 sleep 5
