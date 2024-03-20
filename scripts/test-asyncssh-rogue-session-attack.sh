@@ -75,6 +75,8 @@ function run_client_poc {
 }
 
 function capture_and_compare_outputs {
+  mkdir .tmp && cd .tmp
+
   docker logs "$SERVER_CONTAINER_NAME-direct" > "$SERVER_CONTAINER_NAME-direct.txt" 2>&1
   docker logs "$SERVER_CONTAINER_NAME-poc" > "$SERVER_CONTAINER_NAME-poc.txt" 2>&1
   docker logs "$POC_CONTAINER_NAME" > "$POC_CONTAINER_NAME.txt" 2>&1
@@ -92,14 +94,7 @@ function capture_and_compare_outputs {
     "$CLIENT_CONTAINER_NAME-poc.txt" \
     "$POC_CONTAINER_NAME.txt"
 
-  rm \
-    "$SERVER_CONTAINER_NAME-direct.txt" \
-    "$CLIENT_CONTAINER_NAME-direct.txt" \
-    "$SERVER_CONTAINER_NAME-poc.txt" \
-    "$POC_CONTAINER_NAME.txt" \
-    "$CLIENT_CONTAINER_NAME-poc.txt" \
-    "$SERVER_CONTAINER_NAME.txt.diff" \
-    "$CLIENT_CONTAINER_NAME.txt.diff"
+  cd .. && rm -rf .tmp
 }
 
 function stop_containers {
