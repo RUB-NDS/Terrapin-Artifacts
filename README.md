@@ -27,6 +27,7 @@ This repository contains artifacts for the paper "Terrapin Attack: Breaking SSH 
     ├── scripts                      # Scripts for easier reproduction of our results presented in the paper
     │   ├── bench-ext-downgrade.sh   # Benchmark script to evaluate the success rate of the CBC-EtM variant of the extension downgrade attack
     │   ├── cleanup-system.sh        # A cleanup script which can be used to containers and images related to these artifacts
+        ├── start-wireshark.sh       # A convenience script to start Wireshark capturing on lo interface with SSH decoding and display filter
     │   ├── test-asyncssh-rogue-extension-negotiation.sh
     │   │                            # Test script for the AsyncSSH-specific rogue extension negotiation attack (section 6.1 / figure 6)
     │   ├── test-asnycssh-rogue-session-attack.sh
