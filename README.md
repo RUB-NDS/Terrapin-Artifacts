@@ -37,7 +37,7 @@ This repository contains artifacts for the paper "Terrapin Attack: Breaking SSH 
     ├── LICENSE
     └── README.md
 
-## Getting Started
+## Getting Started (PoCs)
 
 All PoCs and scripts contained within these artifacts are designed to be run inside of Docker containers. As such, ensure that you have a recent
 Linux (tested) or MacOS / Windows (untested) operating system with Docker installed. For easy reproduction of the paper results refer to the
@@ -49,33 +49,41 @@ your system from the network or configure your firewall properly to avoid disclo
 
 You may also build and run individual Docker containers (PoC and SSH implementations) at your own discretion.
 
-### Usage examples for scan_util.py
+## Getting Started (scan_util.py)
+
+To use scan_util.py, build the docker container by running the following command inside the `scan` folder:
+
+```bash
+docker build . -t terrapin-artifacts/scan-util
+```
+
+### Usage
 
 Evaluation of a zgrab2 results file:
 
 ```bash
-python scan_util.py -i zgrab2.json -o zgrab2.acc.json
+docker run --rm -v ./sample:/files terrapin-artifacts/scan-util evaluate -i /files/sample.json -o /files/sample.acc.json
 ```
 
 Removal of blocked IP addresses from a list of IP addresses returned by zmap:
 
 ```bash
-python scan_util.py filter-blocked-ips -i zmap.csv -o zmap-filtered.csv -b blocklist.txt
+docker run --rm -v ./sample:/files terrapin-artifacts/scan-util filter-blocked-ips -i /files/zmap.csv -o /files/zmap-filtered.csv -b /files/blocklist.txt
 ```
 
 Tidying zgrab2 results file by removing entries with connection failures:
 
 ```bash
-python scan_util.py tidy-zgrab2 -i zgrab2.json -o zgrab2-clean.json
+docker run --rm -v ./sample:/files terrapin-artifacts/scan-util tidy-zgrab2 -i /files/sample.json -o /files/sample-clean.json
 ```
 
 ## Troubleshooting
 
 1. When exiting a test script prematurely (i.e. by through a keyboard interrupt), containers will not be terminated nor removed from the system. This can impact subsequent runs of
-test scripts as container names are reused throughout the scripts. To avoid this, please run `scripts/cleanup-system.sh` which will terminate and remove any running container
-related to these artifacts and cause images to be rebuilt upon next test script run.
+test scripts as container names are reused throughout the scripts. To avoid this, please run `scripts/cleanup-system.sh` which remove any intermediate results and terminate and remove any running container
+related to these artifacts. To rebuild the images on next execution of a test script, specify the `--full` flag.
 2. PoC scripts may exit with an error indicating that the address is already in use. This can occur when a test script run has been interrupted earlier and another test script
-is started in quick succession. To resolve the issue wait a decent amount of time in between runs (~1 minute) to allow the system to cleanup the socket listener.
+is started in quick succession. To resolve the issue wait a decent amount of time in between runs (up to 4 minutes) to allow the system to cleanup the socket listener.
 
 ## Acknowledgements
 
