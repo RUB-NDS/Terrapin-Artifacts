@@ -69,7 +69,8 @@ function select_and_run_poc_proxy {
 function bench_client {
   echo "[i] This scripts supports the following clients for benchmarking:"
   echo -e "\t1) OpenSSH 9.5p1"
-  echo -e "\t2) PuTTY 0.79"
+  echo -e "\t2) OpenSSH 9.4p1"
+  echo -e "\t3) PuTTY 0.79"
   read -p "[+] Please select client for benchmakring [1-2]: " CLIENT_IMPL
 
   case $CLIENT_IMPL in
@@ -77,6 +78,9 @@ function bench_client {
       CLIENT_IMPL_NAME="OpenSSH 9.5p1"
       CLIENT_IMAGE="terrapin-artifacts/openssh-client:9.5p1" ;;
     2)
+      CLIENT_IMPL_NAME="OpenSSH 9.4p1"
+      CLIENT_IMAGE="terrapin-artifacts/openssh-client:9.4p1" ;;
+    3)
       CLIENT_IMPL_NAME="PuTTY 0.79"
       CLIENT_IMAGE="terrapin-artifacts/putty-client:0.79" ;;
     *)
@@ -86,7 +90,7 @@ function bench_client {
 
   echo "[+] Benchmarking PoC success rate against $CLIENT_IMPL_NAME client using PoC proxy at 127.0.0.1:$POC_PORT"
   case $CLIENT_IMPL in
-    1)
+    1|2)
       for i in `seq 1 $TRIALS`
       do
         docker run \
@@ -100,7 +104,7 @@ function bench_client {
         docker rm "$CLIENT_CONTAINER_NAME" > /dev/null 2>&1
         echo -e -n "\r[+] Progress: $i / $TRIALS connection attempts done"
       done ;;
-    2)
+    3)
       for i in `seq 1 $TRIALS`
       do
         docker run \
