@@ -45,7 +45,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   zlib1g-dev \
   && rm -rf /var/lib/apt/lists/*
 COPY files/ssh_host_rsa_key /install/host_keys/
-RUN chmod 600 /install/etc/ssh_host_rsa_key
+RUN chmod 600 /install/host_keys/ssh_host_rsa_key
 COPY --from=libssh-builder /install /usr/
 COPY --from=libssh-builder /src/libssh/build/examples /install/examples/
 LABEL "ssh.implementation.name"="libssh" \
