@@ -26,6 +26,8 @@ COPY files/dropbear_rsa_host_key /etc/dropbear/
 RUN chmod 600 /etc/dropbear/dropbear_rsa_host_key
 
 # Set up SSH user and configure a password
+ARG USERNAME
+ARG PASSWORD
 RUN adduser -D "${USERNAME}" && \
     echo "${USERNAME}:${PASSWORD}" | chpasswd && \
     chown -R "${USERNAME}:${USERNAME}" "/home/${USERNAME}"
