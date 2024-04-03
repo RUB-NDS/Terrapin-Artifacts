@@ -2,6 +2,12 @@
 
 This repository contains artifacts for the paper "Terrapin Attack: Breaking SSH Channel Integrity By Sequence Number Manipulation", accepted at 33rd USENIX Security Symposium.
 
+The code in this repository contains, among other artifacts, proof-of-concept attack proxies for the following CVEs:
+
+- [CVE-2023-48795](https://nvd.nist.gov/vuln/detail/CVE-2023-48795) (general protocol flaw)
+- [CVE-2023-46445](https://nvd.nist.gov/vuln/detail/CVE-2023-46445) (AsyncSSH rogue extension negotiation)
+- [CVE-2023-46446](https://nvd.nist.gov/vuln/detail/CVE-2023-46446) (AsyncSSH rogue session attack)
+
 ## Repository Structure
 
     .
