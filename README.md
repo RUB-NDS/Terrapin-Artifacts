@@ -34,7 +34,7 @@ The code in this repository contains, among other artifacts, proof-of-concept at
     │   ├── bench-ext-downgrade.sh   # Benchmark script to evaluate the success rate of the CBC-EtM variant of the extension downgrade attack
     │   ├── cleanup-system.sh        # A cleanup script which can be used to containers and images related to these artifacts
         ├── start-wireshark.sh       # A convenience script to start Wireshark capturing on lo interface with SSH decoding and display filter
-    │   ├── test-asyncssh-rogue-extension-negotiation.sh
+    │   ├── test-asyncssh-rogue-ext-negotiation.sh
     │   │                            # Test script for the AsyncSSH-specific rogue extension negotiation attack (section 6.1 / figure 6)
     │   ├── test-asnycssh-rogue-session-attack.sh
     │   │                            # Test script for the AsyncSSH-specific rogue session attack (section 6.2 / figure 7)
