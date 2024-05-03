@@ -71,7 +71,7 @@ function bench_client {
   echo -e "\t1) OpenSSH 9.5p1"
   echo -e "\t2) OpenSSH 9.4p1"
   echo -e "\t3) PuTTY 0.79"
-  read -p "[+] Please select client for benchmakring [1-3]: " CLIENT_IMPL
+  read -p "[+] Please select client for benchmarking [1-3]: " CLIENT_IMPL
 
   case $CLIENT_IMPL in
     1)
