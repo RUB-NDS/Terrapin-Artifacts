@@ -64,6 +64,14 @@ $ pocs/build.sh
 |  C3 Rogue Extension  |                 -                 |         -          |                 -                 |         -          | :white_check_mark: |         -          |
 |   C4 Rogue Session   |                 -                 |         -          |                 -                 |         -          | :white_check_mark: |         -          |
 
+**Legend:**
+
+- \- &rarr; Not evaluated
+- :white_check_mark: &rarr; Attack succeeds
+- R &rarr; Client terminates the connection (rollover).
+- T &rarr; Client terminates the connection (timeout).
+- U &rarr; Client terminates the connection (UNKNOWN message).
+
 ### Experiments
 
 - **(E1): `scripts/test-sqn-manipulation.sh`** - Run one of the four sequence number manipulation attacks to prove (C1).
